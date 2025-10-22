@@ -1,0 +1,354 @@
+{
+  "name": "اخطبوط",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.akhtaboot.com/en/api/v1/jobs?search%5Bcp_country_name%5D%5Bvals%5D%5B%5D={{$json.countryName}}&search%5Bkeyword%5D={{$json.keyword}}&page={{$json.page}}&per_page=50",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "d88cef63-b437-44e7-97c9-64a51d50a02e",
+      "name": "Get Jobs Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        -752
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const jobs = $json.results || [];\n\nif (!jobs.length) {\n  return [{\n    json: {\n      error: \"no_jobs_found\",\n      country: $json.country || \"\",\n      page: $json.page || 1,\n      keyword: $json.keyword || \"\"\n    }\n  }];\n}\n\nreturn jobs.map(j => ({\n  json: {\n    job_id: j._id,\n    title: (j.cp_title || \"\").trim(),\n    description: (j.cp_job_desc || \"\").trim().slice(0, 300),\n    job_url: `https://www.akhtaboot.com/en/job/${j._id.replace(\"job-\", \"\")}`,\n    country: typeof $json.country === \"string\" ? $json.country : ($json.country?.name || \"\"),\n    page: $json.page || 1,\n    keyword: $json.keyword || \"\"\n  }\n}));\n"
+      },
+      "id": "dc231c59-cecf-4666-b4ce-5e19ea4e4dc8",
+      "name": "Extract Job Links (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        -736
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.job_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "body"
+            }
+          }
+        }
+      },
+      "id": "be25d200-4052-4280-86a9-7579456dbef3",
+      "name": "Get Job Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        -720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $items(\"Get Job Details\")) {\n  const html = item.json.body || \"\";\n  const title = item.json.title || item.json.cp_title || \"Untitled\";\n  const job_url = item.json.job_url || item.json.url || \"N/A\";\n\n  // نستخدم regex بسيط لاستخراج الفقرة الأساسية من الوصف\n  const match = html.match(/<p[^>]*>(.*?)<\\/p>/gi);\n  let text = \"\";\n  if (match) {\n    text = match.join(\" \").replace(/<[^>]+>/g, \" \"); // نحذف HTML tags\n  }\n\n  results.push({\n    title,\n    job_url,\n    description: text.trim(),\n  });\n}\n\nreturn results.map(r => ({ json: r }));\n"
+      },
+      "id": "fbfcb2ec-110b-46e2-a485-a7490ec4e1f4",
+      "name": "Extract Description (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// نجيب نص الـ CV (فقط للمرجع)\nconst cv = ($json.cv_text || \"\").toLowerCase();\n\n// نجيب كل الوظائف من النود السابقة\nconst jobs = $items(\"Extract Job Links (Code)\");\nconst results = [];\n\n// نضيف كل الوظائف بدون حساب التطابق\nfor (const item of jobs) {\n  const job = item.json;\n  const desc = (job.description || \"\").slice(0, 300) + \"...\";\n\n  results.push({\n    job_title: job.title || \"Untitled\",\n    job_url: job.job_url || \"N/A\",\n    description: desc\n  });\n}\n\n// نجهّز الإيميل بصيغة HTML\nlet html = `\n  <h2>قائمة الوظائف المستخرجة</h2>\n  <p>تم تجميع جميع الوظائف المتاحة من موقع Akhtaboot.</p>\n  <ul>\n`;\n\nfor (const job of results) {\n  html += `\n    <li>\n      <strong>${job.job_title}</strong><br>\n      <a href=\"${job.job_url}\" target=\"_blank\">رابط الوظيفة</a><br>\n      <small>${job.description}</small>\n    </li><br>\n  `;\n}\n\nhtml += \"</ul>\";\n\n// نرجع الناتج كعنصر واحد فقط للإيميل\nreturn [{ json: { html, count: results.length } }];\n"
+      },
+      "id": "5e1a9ec9-ccd0-4385-afe1-b7fe30d5cba4",
+      "name": "Match Skills (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -656
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "abef51dd-08e7-4008-989a-7a0db4766912",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -704,
+        -608
+      ],
+      "id": "aa6b9a21-598e-4850-8bc3-94ed9ffba685",
+      "name": "Webhook",
+      "webhookId": "abef51dd-08e7-4008-989a-7a0db4766912"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 0) CV + email\nlet cv = String($json.cv_text || \"\")\n  .toLowerCase()\n  .replace(/\\s+/g, \" \")\n  .replace(/(@[a-z0-9.-]+)\\s+(\\.[a-z]{2,})/g, \"$1$2\");\n\nconst m = cv.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}/i);\nconst email = m ? m[0] : ($json.email || \"\");\nif (!email) return [{ json: { error: \"no_email\", cv_text: cv } }];\n\n// 1) صفحات + كلمة\nconst pageStart = Number($json.pageStart ?? 1);\nconst pageEnd   = Number($json.pageEnd ?? 10);\n   // ← هنا تم رفع العدد إلى 10 صفحات\nconst keyword   = ($json.keyword || \"\").trim();\n\n// 2) الدول المستهدفة فقط\nconst countries = [\n  { slug: \"jordan\", name: \"Jordan\" },\n  { slug: \"saudi-arabia\", name: \"Saudi Arabia\" },\n];\n\n// 3) إنشاء العناصر\nconst out = [];\nfor (const c of countries) {\n  for (let p = pageStart; p <= pageEnd; p++) {\n    out.push({ json: { country: c.slug, countryName: c.name, page: p, cv_text: cv, email, keyword } });\n  }\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -432
+      ],
+      "id": "71ddd7d6-b4cf-470c-87dd-5f9fdf9726fb",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').first().json.email }}",
+        "subject": "قائمة الوظائف المستخرجة من موقع Akhtaboot",
+        "message": "={{ $json.html }}\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1056,
+        -512
+      ],
+      "id": "72c6a278-4800-4f1b-8dae-6e305c2c9ef9",
+      "name": "Send a message",
+      "webhookId": "f239fee5-9b17-48d6-8aeb-94aae905a915",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRot4KlOocTiB2Nk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"ok\",\n  \"message\": \"Email sent successfully\",\n  \"jobs_count\": {{$json.count || 0}}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1056,
+        -288
+      ],
+      "id": "02da1eca-a48c-4656-bb31-5772dc53875a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        -384
+      ],
+      "id": "a8abeb76-3c59-42ef-9ac0-a2fca5a79a9e",
+      "name": "Wait",
+      "webhookId": "746ea84f-2798-48bd-b9cc-a18033996644"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "id": "3c651819-29a8-43f6-8f9d-0d812d71a1f3",
+      "name": "Extract CV Text (PDF)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -528,
+        -576
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be5e5936-7940-43be-b905-62b54d9db076",
+              "name": "cv_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "77d7f904-7c96-4bcb-a34b-4fca4ac24213",
+      "name": "Prepare CV Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -352,
+        -496
+      ],
+      "typeVersion": 3.4
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Jobs Page": {
+      "main": [
+        [
+          {
+            "node": "Extract Job Links (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Job Links (Code)": {
+      "main": [
+        [
+          {
+            "node": "Get Job Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Details": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Description (Code)": {
+      "main": [
+        [
+          {
+            "node": "Match Skills (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract CV Text (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Skills (Code)": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get Jobs Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Extract Description (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract CV Text (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Prepare CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare CV Text": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7f6817db-853b-4520-9268-fb08958af638",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa47f74ac323aac714018a1273aca461b112f316b8f48b3f0c9c843066edf8de"
+  },
+  "id": "3t1FVuMulBaqI3My",
+  "tags": []
+}

@@ -1,0 +1,344 @@
+{
+  "name": "hr",
+  "nodes": [
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"decision\": { \"type\": \"string\", \"enum\": [\"accept\", \"reject\"] },\n    \"match_score\": { \"type\": \"number\", \"minimum\": 0, \"maximum\": 100 },\n    \"matched_skills\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"missing_skills\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"rationale_en\": { \"type\": \"string\" },\n    \"email_paragraph_en\": { \"type\": \"string\" }\n  },\n  \"required\": [\"decision\", \"match_score\", \"matched_skills\", \"missing_skills\", \"email_paragraph_en\"],\n  \"additionalProperties\": false\n}\n"
+      },
+      "id": "14153939-f301-41ae-aab7-baaf40615614",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "JSON Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "creator": "Lucas Peyrin",
+      "position": [
+        560,
+        432
+      ],
+      "typeVersion": 1.3,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "d7ebe304-ceb5-442b-b701-13dfb27a0fe7",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "Gemini 2.5 Flash Lite",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "creator": "Lucas Peyrin",
+      "position": [
+        224,
+        416
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Mp3Yo776GQZNZUT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an ATS evaluator. Assess the candidate for the job title \"{{ $('Webhook').item.json.body.candidate.jobTitle }}\" using common requirements for that role from typical job descriptions.\n\nCandidate data (from the CV):\n- Summary: {{ $('Webhook').item.json.body.summary || '' }}\n- Skills: {{ ($('Webhook').item.json.body.skills || []).join(', ') }}\n- Experience: {{ JSON.stringify($('Webhook').item.json.body.experience || []) }}\n- Projects: {{ JSON.stringify($('Webhook').item.json.body.projects || []) }}\n- Education: {{ JSON.stringify($('Webhook').item.json.body.education || []) }}\n\nReturn ONLY JSON with these keys:\n{\n  \"decision\": \"accept|reject\",\n  \"match_score\": 0-100,\n  \"matched_skills\": [\"skill\", ...],\n  \"missing_skills\": [\"skill\", ...],\n  \"rationale_en\": \"Short reasoning for the decision in English.\",\n  \"email_paragraph_en\": \"One concise paragraph in English for the candidate email. Include decision, match score, the most important missing skills, and one sentence of improvement advice.\"\n}\nDo not include any text outside the JSON.\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are the AI Hiring Assistant, a specialized AI agent designed to meticulously analyze and evaluate candidate CVs against specific job requirements. Your personality is professional, objective, and detail-oriented. You provide clear, evidence-based assessments to support hiring decisions."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "a7475903-43ac-45f2-8b27-3388116d6588",
+      "cid": "Ikx1Y2FzIFBleXJpbiI",
+      "name": "AI Qualification",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "creator": "Lucas Peyrin",
+      "position": [
+        320,
+        176
+      ],
+      "typeVersion": 1.7,
+      "notes": "© 2025 Lucas Peyrin"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "930f2b6a-f068-4c8d-9ed5-15bf7bcfbd76",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        32
+      ],
+      "id": "e9a8709a-c09b-468b-9056-400522ed12f1",
+      "name": "Webhook",
+      "webhookId": "930f2b6a-f068-4c8d-9ed5-15bf7bcfbd76"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              }
+            ]
+          },
+          "responseKey": "={ \"ok\": true, \"score\": \"={{$json.match_score}}\", \"email\": \"={{$json.candidate.email}}\" }"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1152,
+        80
+      ],
+      "id": "9337ac57-8826-4257-8bd1-df5cdf1a52b8",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "= ATS Result – {{ $('Merge').item.json.body.candidate.name }} – {{ $('Merge').item.json.body.candidate.jobTitle }}\n",
+        "message": "=<p>Hello {{ $('Merge').item.json.body.candidate.name }},</p>\n\n<p>{{ $('AI Qualification').item.json.output.email_paragraph_en }}</p>\n\n<p>\n<strong>Decision:</strong>{{ $('AI Qualification').item.json.output.decision }}<br>\n<strong>Match score:</strong>{{ $('AI Qualification').item.json.output.match_score }} %<br>\n<strong>Top missing skills:</strong> {{ $('AI Qualification').item.json.output.missing_skills }}\n</p>\n\n<hr>\n<p style=\"font-size:12px;color:#666\">\nThis message was generated automatically after an initial ATS-style screening for\nthe role of {{ $('Merge').item.json.body.candidate.jobTitle }}.\n</p>\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        976,
+        256
+      ],
+      "id": "f1629230-8817-408e-8c70-f6b05d9aa92d",
+      "name": "Send a message",
+      "webhookId": "1e4d6ca6-23a9-4ce3-83e2-89dd00a60463",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "aRot4KlOocTiB2Nk",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        704,
+        -16
+      ],
+      "id": "78b2aae9-6e1c-48a2-b484-7df7306d1402",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "=Analyze the following candidate data for ATS matching. Return only JSON with the following keys:\n{\n  \"decision\": \"accept\" | \"reject\",\n  \"match_score\": number,\n  \"missing_skills\": [string],\n  \"weak_points\": [string],\n  \"improvements\": [string],\n  \"short_note_ar\": string,\n  \"short_note_en\": string\n}\n\nCandidate Data:\nJob title: {{$json.candidate.jobTitle}}\nSummary: {{$json.text.summary}}\nSkills: {{$json.text.skills}}\nExperience: {{$json.text.experience}}\nProjects: {{$json.text.projects}}\nEducation: {{$json.text.education}}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        48,
+        224
+      ],
+      "id": "0bf0786e-ba0b-4b1d-8fe6-adb188840b5a",
+      "name": "Analyze document",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Mp3Yo776GQZNZUT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b11a7e86-e0d9-4d26-a3ee-8296315464e4",
+              "name": "email",
+              "value": "={{ $json.body.candidate.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        16
+      ],
+      "id": "b2ae6c48-6f55-4211-ac74-9330845528a6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = items[0].json.body;  // ← أضيفي .body هون\n\nif (!b?.candidate?.email || !b?.candidate?.jobTitle) {\n  throw new Error('Missing email or job title');\n}\n\n\nfunction cleanArray(arr) {\n  return (arr || []).map(s => String(s).trim()).filter(Boolean);\n}\n\nreturn [{\n  json: {\n    language: b.language || 'ar',\n    candidate: {\n      name: (b.candidate.name || '').trim(),\n      email: (b.candidate.email || '').trim(),\n      jobTitle: (b.candidate.jobTitle || '').trim(),\n    },\n    text: {\n      summary: (b.cv?.summary || '').trim(),\n      skills: cleanArray(b.cv?.skills),\n      experience: (b.cv?.experience || []).map(e =>\n        `${e.title || ''} @ ${e.company || ''} | ${e.dates || ''} :: ${cleanArray(e.bullets || []).join('; ')}`\n      ).join(' | '),\n      projects: (b.cv?.projects || []).map(p =>\n        `${p.title || ''} @ ${p.org || ''} | ${p.dates || ''} :: ${cleanArray(p.bullets || []).join('; ')}`\n      ).join(' | '),\n      education: (b.cv?.education || []).map(ed =>\n        `${ed.degree || ''} - ${ed.school || ''} | ${ed.dates || ''}`\n      ).join(' | ')\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        192
+      ],
+      "id": "7a2faae9-2d71-4359-82e7-d04b24f56e66",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Qualification",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash Lite": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Qualification",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Qualification": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze document": {
+      "main": [
+        [
+          {
+            "node": "AI Qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Analyze document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fe614779-d449-426b-a466-95ac8d20a191",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa47f74ac323aac714018a1273aca461b112f316b8f48b3f0c9c843066edf8de"
+  },
+  "id": "hm2OkkaluU93rUUB",
+  "tags": []
+}

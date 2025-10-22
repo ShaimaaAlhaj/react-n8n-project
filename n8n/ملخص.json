@@ -1,0 +1,98 @@
+{
+  "name": "ملخص",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-summary",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "46eede80-0f65-49e4-bb48-caaabce12da7",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -2448,
+        832
+      ],
+      "webhookId": "ai-summary"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Read from body if webhook puts payload there, otherwise from root\nconst src = $json.body ?? $json;\n\nconst lang = (src.language ?? 'en').toLowerCase();\nconst skills = Array.isArray(src.skills) ? src.skills.filter(Boolean) : [];\nconst expIn  = Array.isArray(src.experience) ? src.experience : [];\n\n// normalize experience\nconst exp = expIn.map(e => ({\n  title:   (e.title   ?? '').trim(),\n  company: (e.company ?? '').trim(),\n  dates:   (e.dates   ?? '').trim(),\n  bullets: Array.isArray(e.bullets)\n    ? e.bullets.map(b => String(b).trim()).filter(Boolean)\n    : String(e.desc ?? '')\n        .split('\\n')\n        .map(s => s.trim())\n        .filter(Boolean)\n}));\n\n// if nothing useful\nif (skills.length === 0 && exp.length === 0) {\n  return [{\n    json: {\n      summary: lang === 'ar'\n        ? \"⚠️ يرجى إضافة المهارات أو الخبرة أولاً.\"\n        : \"⚠️ Please add skills or experience first.\"\n    }\n  }];\n}\n\n// build parts\nconst skillsText = skills.join(', ');\nconst expLines = exp\n  .map(e => {\n    const head = [e.title, e.company, e.dates].filter(Boolean).join(' • ');\n    const blts = e.bullets.length ? ' — ' + e.bullets.slice(0,3).join(' | ') : '';\n    return head + blts;\n  })\n  .filter(Boolean);\n\n// summary\nlet summary;\nif (lang === 'ar') {\n  if (expLines.length) {\n    summary =\n      `‎ملخص مهني: خبرة في ${expLines.join('؛ ')}. ` +\n      (skills.length ? `متمكن من: ${skillsText}. ` : '') +\n      `أركز على تحسين الأداء، جودة التسليم، ونتائج قابلة للقياس.`;\n  } else {\n    summary =\n      `ملخص مهني: مهارات قوية في ${skillsText}. ` +\n      `أسعى لتطبيقها على مشاريع عملية وتحقيق قيمة واضحة.`;\n  }\n} else {\n  if (expLines.length) {\n    summary =\n      `Professional summary: experience in ${expLines.join('; ')}. ` +\n      (skills.length ? `Skilled in ${skillsText}. ` : '') +\n      `Focused on quality delivery, performance, and measurable outcomes.`;\n  } else {\n    summary =\n      `Professional summary: strong skills in ${skillsText}. ` +\n      `Seeking to apply them on real projects with clear business impact.`;\n  }\n}\n\n// return as a single item with {json:{summary}}\nreturn [{ json: { summary } }];\n"
+      },
+      "id": "0e503ded-d3da-4a74-9333-b453d0d2f3cd",
+      "name": "Generate Summary",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -2192,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "7ab352ca-3188-495a-94c8-0bef7ee2b848",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -1936,
+        832
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Summary": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f7795d1a-e22a-4e82-9a78-e541ad2568bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa47f74ac323aac714018a1273aca461b112f316b8f48b3f0c9c843066edf8de"
+  },
+  "id": "gNndcWQOFcTxE6rp",
+  "tags": []
+}

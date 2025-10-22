@@ -1,0 +1,414 @@
+{
+  "name": "AI CV Optimizer",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "httpMethod": [
+          "POST"
+        ],
+        "path": "cv-optimizer",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "95b9a630-e8d9-4fd6-bf03-8a6459b047ef",
+      "name": " Webhook - CV Optimizer Form",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        176,
+        64
+      ],
+      "webhookId": "d50feff6-c48f-41e8-8df2-62ee9864907c",
+      "typeVersion": 2.1
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=cv",
+        "options": {}
+      },
+      "id": "4a576848-336d-46e6-a79b-305263caa46d",
+      "name": "Extract CV Text (PDF)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        432,
+        48
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "be5e5936-7940-43be-b905-62b54d9db076",
+              "name": "cv_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5431845d-a30a-433d-9450-c064474c5363",
+      "name": "Prepare CV Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        592,
+        -80
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f34fd7a8-ae7f-4fa0-bb01-294621c429c5",
+      "name": " Gemini Model - Primary",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        928,
+        368
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Mp3Yo776GQZNZUT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"job_title\": \"Frontend Developer (React)\",\n  \"location\": \"Helsinki, Finland\",\n  \"fit_score\": 7,\n  \"recommendation\": \"Consider\",\n  \"final_recommendation\": \"The candidate is a good potential match but should strengthen their CV by explicitly mentioning CSS framework expertise and accessibility knowledge to move from 'Consider' to 'Apply'.\",\n  \"matched_skills\": [\n    \"React\",\n    \"TypeScript\",\n    \"JavaScript\",\n    \"Full-stack applications\",\n    \"CI/CD knowledge\",\n    \"Testing (Cypress, Jest)\"\n  ],\n  \"missing_critical\": [\n    \"Advanced CSS framework experience (e.g., Tailwind, Material UI)\",\n    \"Accessibility (WCAG) best practices\"\n  ],\n  \"advice\": \"Highlight CSS framework experience and accessibility practices. Quantify contributions to frontend performance and UI/UX improvements.\",\n  \"cv_optimization\": \"Add a section highlighting hands-on experience with CSS frameworks (Tailwind, Material UI) and accessibility best practices (WCAG). Include concrete project examples.\",\n  \"email_body\": \"Dear Candidate, the role of Frontend Developer (React) in Helsinki, Finland values your React, TypeScript, and CI/CD experience. To improve your chances, consider adding more details on CSS frameworks and accessibility. With these improvements, your application will be much stronger. Keep up the great work and stay motivated!\"\n}\n",
+        "autoFix": true
+      },
+      "id": "ffb8bca4-456b-4c81-b2d4-96495873ac71",
+      "name": "Parse AI JSON Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1168,
+        320
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "1fff8dff-3d81-4fa8-ba0a-3cb5aedb50c5",
+      "name": "Gemini Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1136,
+        480
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Mp3Yo776GQZNZUT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CV:\n{{ $json[\"cv_text\"] ? $json[\"cv_text\"].slice(0, 18000) : \"\" }}\n\nJOB:\n{{ $json[\"job_text\"] ? $json[\"job_text\"].slice(0, 18000) : \"\" }}\n\nYou are an ATS (Applicant Tracking System) simulator. \nCompare the CV against the job description exactly like an ATS would: \n- focus on keywords, required qualifications, years of experience, technical skills, and certifications. \n- match the candidate’s CV with the job description and highlight both strong overlaps and missing critical points. \n\nTasks:\n1) Extract the \"job_title\" and \"location\".  \n2) Identify \"matched_skills\" (skills or keywords from the CV that match the job description) and \"missing_critical\" (important skills/keywords/job requirements that are in the job description but missing from the CV).  \n3) Write a short \"advice\" paragraph (max 100 words) giving specific guidance to the candidate.  \n4) Write a friendly \"email_body\" addressed to the candidate, summarizing:  \n   - Job title & location  \n   - What they already match well  \n   - Critical areas to improve or learn for better fit  \n   - Motivating closing sentence.  \n5) Write a concise \"final_recommendation\" paragraph with an overall evaluation.  \n6) Provide **two recommendations**:  \n   - \"recommendation\": Apply / Consider / Not a fit (must align with fit_score).  \n   - \"cv_optimization\": Clear ATS-style advice on how to improve the CV for similar roles (e.g., add missing keywords, quantify achievements, include certifications).  \n7) Assign a \"fit_score\" (1–10) that must always align with \"recommendation\":  \n   - Apply → fit_score 9–10  \n   - Consider → fit_score 7–8  \n   - Not a fit → fit_score 1–6  \n\n⚠️ IMPORTANT: Return ONLY valid JSON in this schema:\n{\n  \"job_title\": \"string\",\n  \"location\": \"string\",\n  \"fit_score\": 0,\n  \"recommendation\": \"Apply|Consider|Not a fit\",\n  \"final_recommendation\": \"string\",\n  \"matched_skills\": [\"string\"],\n  \"missing_critical\": [\"string\"],\n  \"advice\": \"string\",\n  \"cv_optimization\": \"string\",\n  \"email_body\": \"string\"\n}\nReturn ONLY valid JSON. Do not include explanations or extra text.\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a professional career assistant.  \nYour task is to compare a candidate’s CV with a job description and return a structured JSON output.  \n\n⚠️ RULES:  \n- Follow the schema exactly.  \n- Every field must be included.  \n- All values must be plain text, arrays, or integers — never nested objects.  \n- `fit_score` must be an integer percentage (0–100).  \n- Align `fit_score` with `recommendation`:  \n   - \"Apply\" → 90–100  \n   - \"Consider\" → 70–89  \n   - \"Not a fit\" → 0–69  \n- Do not add responsibilities, requirements, or benefits.  \n- Do not include any text outside the JSON.  \n\nSchema:\n{\n  \"job_title\": \"string\",\n  \"location\": \"string\",\n  \"fit_score\": 0,\n  \"recommendation\": \"Apply|Consider|Not a fit\",\n  \"matched_skills\": [\"string\"],\n  \"missing_critical\": [\"string\"],\n  \"cv_optimization\": \"string\",\n  \"email_body\": \"string\",\n  \"final_recommendation\": \"string\"\n}\n"
+        }
+      },
+      "id": "d7aa7a4b-3e20-4234-89d6-4a3be5eaab9a",
+      "name": "AI CV Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1104,
+        48
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "jsCode": "// التقط النص سواء أُلصق مباشرة أو أُحضر من طلب HTTP\nconst body = $json.body ?? {};\nconst raw =\n  $json.job_text ??\n  body.job_text ??                 // من الفورم\n  $json.data ??                    // مصادر أُخرى محتملة\n  ($json.body_html ?? '') ??       // إن وُجد HTML\n  '';\n\nconst text = String(raw)\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<\\/?[^>]+>/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nreturn [{ job_text: text }];\n"
+      },
+      "id": "4a2e9a44-8888-42d2-aea7-6ec92a1bb7e0",
+      "name": "Job Text Cleaner",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        384
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1424,
+        144
+      ],
+      "id": "fd0a4a5a-ef8a-4cdc-b4a2-5ac964712dba",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c15f607b-4c3e-405b-9401-ba6c48600c1c",
+              "leftValue": "={{ !!((($json.body?.job_url || $json.job_url) ?? '')\n      .startsWith('http')) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        320
+      ],
+      "id": "89fd0871-3648-4c1d-90d0-f32d8eaaa675",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"job_url\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        256
+      ],
+      "id": "ac010431-87e1-4b92-9592-87c0f2295035",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        80
+      ],
+      "id": "74802c36-5614-4b6b-87f3-46dc2d986262",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "41f1b533-94e7-47bd-b0c1-6557e4a2c3c0",
+              "name": "cv_len",
+              "value": "={{$json.cv_text ? $json.cv_text.length : 0}}\n",
+              "type": "string"
+            },
+            {
+              "id": "f3928cf3-8af9-4b4b-b59b-9df0f668aa73",
+              "name": "job_len",
+              "value": "={{$json.job_text ? $json.job_text.length : 0}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "85b861dd-af71-4136-ae42-db0ed26a829a",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gemini Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse AI JSON Output",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI CV Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare CV Text": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Text Cleaner": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Parse AI JSON Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI CV Analyzer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract CV Text (PDF)": {
+      "main": [
+        [
+          {
+            "node": "Prepare CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Gemini Model - Primary": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI CV Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    " Webhook - CV Optimizer Form": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract CV Text (PDF)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Job Text Cleaner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Job Text Cleaner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI CV Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3c23c61c-31ba-42c7-9168-5b0f5736ca22",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa47f74ac323aac714018a1273aca461b112f316b8f48b3f0c9c843066edf8de"
+  },
+  "id": "BePiKpfT5oH8aFWn",
+  "tags": []
+}

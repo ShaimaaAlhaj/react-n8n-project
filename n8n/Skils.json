@@ -1,0 +1,122 @@
+{
+  "name": "Skils",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=job-skills",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        16
+      ],
+      "id": "4fa57dbd-7e6f-4fda-b849-3e515b331075",
+      "name": "Webhook",
+      "webhookId": "55c66c62-14ee-4029-a58a-fbf0697dade8"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ \n  JSON.stringify(\n    JSON.parse(\n      $json.content.parts[0].text\n        .replace(/```json|```/g, '')  // يشيل backticks\n        .trim()\n    )\n  ) \n}}\n",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        976,
+        -32
+      ],
+      "id": "5e5279b5-30db-4631-b10d-a44198e9c27b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "= {{ $json.body.field }}."
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "You are an expert skills analyst. Your task is to list the top 15 skills for the given job title. CRITICAL: You MUST return the output as a valid JSON object, in this format ONLY: {   \"skills\": [\"skill1\", \"skill2\", \"skill3\"] } Do NOT add any other text or markdown formatting."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        624,
+        -80
+      ],
+      "id": "b0cd9fe6-c155-428d-8dc0-76b539db8292",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6Mp3Yo776GQZNZUT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "38892f8c-3274-4fa1-8f77-a694b68f7f04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa47f74ac323aac714018a1273aca461b112f316b8f48b3f0c9c843066edf8de"
+  },
+  "id": "7KvJiv1zmP6NJrYZ",
+  "tags": []
+}
