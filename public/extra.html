@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CV Builder: Extra Detail CV</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --radius: .625rem; --background: #fcfbff; --foreground: #3f3c43; --card: #ffffff; --card-foreground: #3f3c43; --primary: #8a43e6; --primary-foreground: #fcfbff; --secondary: #e9e4f0; --secondary-foreground: #585360; --muted: #f0edf5; --muted-foreground: #8a8395; --accent: #a953e0; --accent-foreground: #fcfbff; --border: #dfd9e7; --ring: #8a43e6;
+}
+.dark {
+    --background: #252328; --foreground: #e9e8ea; --card: #2c2930; --card-foreground: #e9e8ea; --primary: #af87ee; --primary-foreground: #252328; --secondary: #3f3c43; --secondary-foreground: #d7d3db; --muted: #35323a; --muted-foreground: #a29cab; --accent: #c48ff1; --accent-foreground: #252328; --border: #4c4853; --ring: #af87ee;
+}
+*{box-sizing:border-box;margin:0;padding:0;border-color:var(--border  );transition:color .2s,background-color .2s,border-color .2s,transform .2s,opacity .2s,box-shadow .2s}
+body{font-family:Cairo, sans-serif;line-height:1.6;color:var(--foreground);background-color:var(--background);display:flex;min-height:100vh}
+.container{display:flex;width:100%;max-width:1400px;margin:0 auto;padding:20px;gap:20px}
+.control-panel{flex:1;background-color:var(--card);padding:20px;border-radius:var(--radius);box-shadow:0 4px 6px rgba(0,0,0,.1);overflow-y:auto;max-height:calc(100vh - 40px)}
+.cv-preview{flex:1.5;background-color:#fff;padding:30px;border-radius:var(--radius);box-shadow:0 4px 6px rgba(0,0,0,.1);overflow-y:auto;max-height:calc(100vh - 40px);color:#333}
+h1{color:var(--primary);margin-bottom:20px;font-size:1.8rem}
+.form-section{margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.form-header{background-color:var(--muted);padding:10px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:bold;color:var(--foreground)}
+.form-content{padding:15px;border-top:1px solid var(--border);display:none}
+.form-section.active .form-content{display:block}
+.form-group{margin-bottom:15px}
+label{display:block;margin-bottom:5px;font-weight:600;color:var(--foreground)}
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=date],textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background-color:var(--background);color:var(--foreground);font-family:Cairo,sans-serif}
+textarea{resize:vertical;min-height:80px}
+.add-btn,.remove-btn{background-color:var(--secondary);color:var(--secondary-foreground);border:none;padding:8px 12px;border-radius:var(--radius);cursor:pointer;margin-top:10px}
+.add-btn:hover{background-color:var(--secondary-foreground);color:var(--secondary)}
+.remove-btn{background-color:#ef4444;color:#fff;margin-left:10px}
+.remove-btn:hover{background-color:#dc2626}
+.item-card{background-color:var(--background);border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.item-card .item-details{flex-grow:1}
+.item-card .item-actions{flex-shrink:0}
+.action-controls{display:flex;gap:10px;margin-top:20px}
+.action-btn{flex:1;padding:12px;border:none;border-radius:var(--radius);cursor:pointer;font-size:1rem;font-weight:bold}
+.action-btn.primary{background-color:var(--primary);color:var(--primary-foreground)}
+.action-btn.secondary{background-color:var(--secondary);color:var(--secondary-foreground)}
+.cv-preview .cv-header{text-align:center;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e5e7eb}
+.cv-preview .cv-header h1{font-size:2.5rem;margin:0;color:#8a43e6}
+.cv-preview .cv-main-content{display:flex;gap:20px}
+.cv-preview .cv-left-col,.cv-preview .cv-right-col{flex:1}
+.cv-preview .cv-section{margin-bottom:20px}
+.cv-preview .cv-section-title{font-size:1.5rem;color:#8a43e6;margin-bottom:10px;border-bottom:1px solid #e5e7eb;padding-bottom:5px}
+.cv-preview .cv-contact-item{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.cv-preview .cv-contact-item i{color:#8a43e6; width: 20px; text-align: center;}
+.cv-preview .cv-item{margin-bottom:10px}
+.cv-preview .cv-item h3{font-size:1.1rem;margin-bottom:5px;color:#333}
+.cv-preview .cv-item h4{font-size:1rem;margin-bottom:5px;color:#6b7280}
+.cv-preview .cv-item p{font-size:.9rem;color:#6b7280; white-space: pre-wrap; word-break: break-word;}
+.cv-preview .placeholder-text{color:#9ca3af;font-style:italic;text-align:center;padding:10px}
+.top-bar{position:absolute;top:20px;right:20px;display:flex;gap:10px;z-index:1000}
+.toggle-button{background-color:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;cursor:pointer;color:var(--foreground);font-weight:bold}
+.toggle-button:hover{background-color:var(--muted)}
+html[dir=rtl] body{direction:rtl;text-align:right}
+html[dir=rtl] .cv-contact-item{flex-direction:row-reverse}
+html[dir=rtl] .remove-btn{margin-left:0;margin-right:10px}
+html[dir=rtl] .top-bar{right:auto;left:20px}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <button id="language-toggle" class="toggle-button" data-i18n="languageToggle">EN</button>
+  <button id="theme-toggle" class="toggle-button" data-i18n="toggleTheme">🌙</button>
+</div>
+
+<div class="container">
+  <div class="control-panel">
+    <h1 data-i18n="appTitle">CV Builder: Extra Detail CV</h1>
+
+    <div class="form-section active">
+      <div class="form-header" data-i18n="personalInfo">المعلومات الأساسية</div>
+      <div class="form-content">
+        <div class="form-group">
+          <label for="full-name" data-i18n="fullName">الاسم الكامل</label>
+          <input type="text" id="full-name">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section active">
+      <div class="form-header" data-i18n="contact">معلومات التواصل</div>
+      <div class="form-content">
+        <div class="form-group"><label for="phone" data-i18n="phone">الهاتف</label><input type="tel" id="phone"></div>
+        <div class="form-group"><label for="email" data-i18n="email">الإيميل</label><input type="email" id="email"></div>
+        <div class="form-group"><label for="address" data-i18n="address">العنوان</label><input type="text" id="address"></div>
+        <div class="form-group"><label for="website" data-i18n="website">الموقع الشخصي</label><input type="url" id="website"></div>
+        <div class="form-group"><label for="linkedin" data-i18n="linkedin">لينكدإن</label><input type="url" id="linkedin"></div>
+      </div>
+    </div>
+
+    <div class="form-section active">
+      <div class="form-header" data-i18n="summary">الملخص المهني</div>
+      <div class="form-content">
+        <textarea id="summary-input"></textarea>
+        <div class="ai-writer-section">
+          <h3 data-i18n="aiWriter">اقتراح AI</h3>
+          <button onclick="suggestSummary()">اقتراح وصف</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section active"><div class="form-header" data-i18n="experience">الخبرات العملية</div><div class="form-content"><div id="experience-list"></div><button class="add-btn" data-type="experience" data-i18n="addExperience">+ إضافة خبرة</button></div></div>
+    <div class="form-section"><div class="form-header" data-i18n="education">التعليم</div><div class="form-content"><div id="education-list"></div><button class="add-btn" data-type="education" data-i18n="addEducation">+ إضافة مؤهل</button></div></div>
+    <div class="form-section"><div class="form-header" data-i18n="skills">المهارات</div><div class="form-content"><div id="skills-list"></div><button class="add-btn" data-type="skills" data-i18n="addSkill">+ إضافة مهارة</button></div></div>
+    <div class="form-section"><div class="form-header" data-i18n="certifications">الشهادات والدورات</div><div class="form-content"><div id="certifications-list"></div><button class="add-btn" data-type="certifications" data-i18n="addCertification">+ إضافة شهادة</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="languages">اللغات</div><div class="form-content"><div id="languages-list"></div><button class="add-btn" data-type="languages" data-i18n="addLanguage">+ إضافة لغة</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="projects">المشاريع العملية</div><div class="form-content"><div id="projects-list"></div><button class="add-btn" data-type="projects" data-i18n="addProject">+ إضافة مشروع</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="achievements">الإنجازات والجوائز</div><div class="form-content"><div id="achievements-list"></div><button class="add-btn" data-type="achievements" data-i18n="addAchievement">+ إضافة إنجاز</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="volunteerWork">العمل التطوعي</div><div class="form-content"><div id="volunteer-list"></div><button class="add-btn" data-type="volunteer" data-i18n="addVolunteer">+ إضافة تطوع</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="publications">الأبحاث والمقالات</div><div class="form-content"><div id="publications-list"></div><button class="add-btn" data-type="publications" data-i18n="addPublication">+ إضافة بحث</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="conferences">المؤتمرات</div><div class="form-content"><div id="conferences-list"></div><button class="add-btn" data-type="conferences" data-i18n="addConference">+ إضافة مؤتمر</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="patents">براءات الاختراع</div><div class="form-content"><div id="patents-list"></div><button class="add-btn" data-type="patents" data-i18n="addPatent">+ إضافة براءة اختراع</button></div></div>
+    <div class="form-section active"><div class="form-header" data-i18n="academicAwards">الجوائز الأكاديمية</div><div class="form-content"><div id="academic-awards-list"></div><button class="add-btn" data-type="academicAwards" data-i18n="addAcademicAward">+ إضافة جائزة أكاديمية</button></div></div>
+    <div class="form-section"><div class="form-header" data-i18n="courses">الدورات التدريبية</div><div class="form-content"><div id="courses-list"></div><button class="add-btn" data-type="courses" data-i18n="addCourse">+ إضافة دورة تدريبية</button></div></div>
+
+    <div class="form-section">
+      <div class="form-header" data-i18n="professionalReferences">المراجع المهنية</div>
+      <div class="form-content"><textarea id="references-input" rows="3" data-i18n-placeholder="availableOnRequest" placeholder="متاح عند الطلب">متاح عند الطلب</textarea></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-header" data-i18n="finalActions">الإجراءات النهائية</div>
+      <div class="form-content action-controls">
+        <button class="action-btn primary" id="download-pdf" data-i18n="downloadPDF">تحميل PDF</button>
+        <button class="action-btn secondary" onclick="sendToCompany()" data-i18n="sendToCompany">إرسال عبر الإيميل</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cv-preview" id="cv-preview">
+      <!-- سيتم عرض محتوى السيرة الذاتية هنا بواسطة جافاسكريبت -->
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const translations = {
+        ar: { appTitle: "CV Builder: Extra Detail CV", languageToggle: "EN", toggleTheme: "🌙", personalInfo: "المعلومات الأساسية", fullName: "الاسم الكامل", phone: "الهاتف", email: "الإيميل", address: "العنوان", website: "الموقع الشخصي", linkedin: "لينكدإن", summary: "الملخص المهني", aiWriter: "اقتراح AI", aiDescSuggestion: "• قمت بتحليل [نوع البيانات] باستخدام [أداة]، مما أدى إلى تحسين [مؤشر أداء] بنسبة [نسبة مئوية].\n• أدرت فريقًا من [عدد] أعضاء لتحقيق [هدف معين] ضمن الجدول الزمني المحدد.", experience: "الخبرات العملية", addExperience: "+ إضافة خبرة", jobTitle: "المسمى الوظيفي", company: "الشركة", startDate: "تاريخ البدء", endDate: "تاريخ الانتهاء", description: "الوصف", education: "التعليم", addEducation: "+ إضافة مؤهل", university: "الجامعة/المؤسسة", degree: "المؤهل/التخصص", skills: "المهارات", addSkill: "+ إضافة مهارة", skillName: "المهارة", certifications: "الشهادات والدورات", addCertification: "+ إضافة شهادة", certificationName: "اسم الشهادة", issuingBody: "الجهة المانحة", issueDate: "تاريخ الإصدار", languages: "اللغات", addLanguage: "+ إضافة لغة", languageName: "اللغة", level: "المستوى", projects: "المشاريع العملية", addProject: "+ إضافة مشروع", projectName: "اسم المشروع", achievements: "الإنجازات والجوائز", addAchievement: "+ إضافة إنجاز", achievement: "الإنجاز/الجائزة", volunteerWork: "العمل التطوعي", addVolunteer: "+ إضافة تطوع", role: "الدور", organization: "المنظمة", publications: "الأبحاث والمقالات", addPublication: "+ إضافة بحث", publicationTitle: "عنوان البحث/المقال", publisher: "الناشر", publicationDate: "تاريخ النشر", conferences: "المؤتمرات", addConference: "+ إضافة مؤتمر", conferenceName: "اسم المؤتمر", patents: "براءات الاختراع", addPatent: "+ إضافة براءة اختراع", patentTitle: "عنوان براءة الاختراع", academicAwards: "الجوائز الأكاديمية", addAcademicAward: "+ إضافة جائزة أكاديمية", awardName: "اسم الجائزة", courses: "الدورات التدريبية", addCourse: "+ إضافة دورة تدريبية", courseName: "اسم الدورة", professionalReferences: "المراجع المهنية", availableOnRequest: "متاح عند الطلب", finalActions: "الإجراءات النهائية", downloadPDF: "تحميل PDF", sendToCompany: "إرسال عبر الإيميل", loading: "جاري التحميل...", contactInfo: "معلومات التواصل", summarySection: "الملخص المهني", skillsSection: "المهارات", certificationsSection: "الشهادات", languagesSection: "اللغات", projectsSection: "المشاريع", achievementsSection: "الإنجازات", volunteerSection: "العمل التطوعي", publicationsSection: "الأبحاث", referencesSection: "المراجع" },
+        en: { appTitle: "CV Builder: Extra Detail CV", languageToggle: "العربية", toggleTheme: "☀️", personalInfo: "Basic Information", fullName: "Full Name", phone: "Phone", email: "Email", address: "Address", website: "Website", linkedin: "LinkedIn", summary: "Professional Summary", aiWriter: "AI Suggestion", aiDescSuggestion: "• Analyzed [data type] using [tool], leading to a [percentage]% improvement in [KPI].\n• Managed a team of [number] members to achieve [specific goal] on schedule.", experience: "Work Experience", addExperience: "+ Add Experience", jobTitle: "Job Title", company: "Company", startDate: "Start Date", endDate: "End Date", description: "Description", education: "Education", addEducation: "+ Add Education", university: "University/Institution", degree: "Degree/Major", skills: "Skills", addSkill: "+ Add Skill", skillName: "Skill", certifications: "Certifications & Courses", addCertification: "+ Add Certification", certificationName: "Certificate Name", issuingBody: "Issuing Body", issueDate: "Issue Date", languages: "Languages", addLanguage: "+ Add Language", languageName: "Language", level: "Level", projects: "Projects", addProject: "+ Add Project", projectName: "Project Name", achievements: "Achievements & Awards", addAchievement: "+ Add Achievement", achievement: "Achievement/Award", volunteerWork: "Volunteer Work", addVolunteer: "+ Add Volunteer", role: "Role", organization: "Organization", publications: "Publications & Articles", addPublication: "+ Add Publication", publicationTitle: "Research/Article Title", publisher: "Publisher", publicationDate: "Publication Date", conferences: "Conferences", addConference: "+ Add Conference", conferenceName: "Conference Name", patents: "Patents", addPatent: "+ Add Patent", patentTitle: "Patent Title", academicAwards: "Academic Awards", addAcademicAward: "+ Add Academic Award", awardName: "Award Name", courses: "Training Courses", addCourse: "+ Add Course", courseName: "Course Name", professionalReferences: "Professional References", availableOnRequest: "Available upon request", finalActions: "Final Actions", downloadPDF: "Download PDF", sendToCompany: "Send via Email", loading: "Loading...", contactInfo: "Contact Information", summarySection: "Professional Summary", skillsSection: "Skills", certificationsSection: "Certifications", languagesSection: "Languages", projectsSection: "Projects", achievementsSection: "Achievements", volunteerSection: "Volunteer Work", publicationsSection: "Publications", referencesSection: "References" }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'ar';
+    let state = baseState();
+    let prevSnapshot = "";
+
+    function baseState() {
+        return { personal: { name: "" }, contact: { phone: "", email: "", address: "", website: "", linkedin: "" }, summary: "", experience: [], education: [], skills: [], certifications: [], languages: [], projects: [], achievements: [], volunteer: [], publications: [], conferences: [], patents: [], academicAwards: [], courses: [], references: "متاح عند الطلب" };
+    }
+
+    function text(el) { return el ? el.value || "" : "" }
+
+    function snapshotFromDOM() {
+        const s = baseState();
+        s.personal.name = text(document.getElementById('full-name'));
+        s.contact.phone = text(document.getElementById('phone'));
+        s.contact.email = text(document.getElementById('email'));
+        s.contact.address = text(document.getElementById('address'));
+        s.contact.website = text(document.getElementById('website'));
+        s.contact.linkedin = text(document.getElementById('linkedin'));
+        s.summary = text(document.getElementById('summary-input'));
+        s.references = text(document.getElementById('references-input')) || s.references;
+
+        const collect = (name) => {
+            const list = document.getElementById(name + '-list');
+            if (!list) return [];
+            const out = [];
+            Array.from(list.children).forEach(card => {
+                const item = {};
+                const cfg = sectionsConfig[name];
+                if (!cfg) return;
+                for (const key in cfg.fields) {
+                    const inp = card.querySelector(`[data-field="${key}"]`);
+                    item[key] = inp ? inp.value : "";
+                }
+                if (cfg.isValueArray) out.push({ value: item.value || "" });
+                else out.push(item);
+            });
+            return out;
+        };
+
+        s.experience = collect('experience');
+        s.education = collect('education');
+        s.skills = collect('skills');
+        s.certifications = collect('certifications');
+        s.languages = collect('languages');
+        s.projects = collect('projects');
+        s.achievements = collect('achievements');
+        s.volunteer = collect('volunteer');
+        s.publications = collect('publications');
+        s.conferences = collect('conferences');
+        s.patents = collect('patents');
+        s.academicAwards = collect('academicAwards');
+        s.courses = collect('courses');
+        return s;
+    }
+
+    const sectionsConfig = {
+        personal: { fields: { name: translations[currentLang].fullName } },
+        contact: { fields: { phone: translations[currentLang].phone, email: translations[currentLang].email, address: translations[currentLang].address, website: translations[currentLang].website, linkedin: translations[currentLang].linkedin } },
+        summary: { isTextarea: true },
+        experience: { fields: { title: translations[currentLang].jobTitle, company: translations[currentLang].company, startDate: translations[currentLang].startDate, endDate: translations[currentLang].endDate, description: translations[currentLang].description }, isTextarea: 'description' },
+        education: { fields: { university: translations[currentLang].university, degree: translations[currentLang].degree, endDate: translations[currentLang].endDate, description: translations[currentLang].description }, isTextarea: 'description' },
+        skills: { fields: { value: translations[currentLang].skillName }, isValueArray: true },
+        certifications: { fields: { name: translations[currentLang].certificationName, issuer: translations[currentLang].issuingBody, issueDate: translations[currentLang].issueDate }, isTextarea: 'description' },
+        languages: { fields: { name: translations[currentLang].languageName, level: translations[currentLang].level } },
+        projects: { fields: { name: translations[currentLang].projectName, description: translations[currentLang].description }, isTextarea: 'description' },
+        achievements: { fields: { value: translations[currentLang].achievement }, isValueArray: true },
+        volunteer: { fields: { role: translations[currentLang].role, organization: translations[currentLang].organization, startDate: translations[currentLang].startDate, endDate: translations[currentLang].endDate, description: translations[currentLang].description }, isTextarea: 'description' },
+        publications: { fields: { title: translations[currentLang].publicationTitle, publisher: translations[currentLang].publisher, publicationDate: translations[currentLang].publicationDate }, isTextarea: 'description' },
+        conferences: { fields: { name: translations[currentLang].conferenceName, date: translations[currentLang].publicationDate }, isTextarea: 'description' },
+        patents: { fields: { title: translations[currentLang].patentTitle, date: translations[currentLang].publicationDate }, isTextarea: 'description' },
+        academicAwards: { fields: { name: translations[currentLang].awardName, date: translations[currentLang].publicationDate }, isTextarea: 'description' },
+        courses: { fields: { name: translations[currentLang].courseName, issuer: translations[currentLang].issuingBody, date: translations[currentLang].issueDate }, isTextarea: 'description' },
+        references: { isTextarea: true }
+    };
+
+    function renderCV(lang) {
+        const cv = document.getElementById('cv-preview');
+        const p = (t) => `<p class="placeholder-text">${t}</p>`;
+        const renderList = (items, fn, ph) => items && items.length ? items.map(fn).join('') : p(ph || '---');
+
+        // دالة مساعدة لتنظيف النص وعرضه بأمان
+        const sanitize = (str) => {
+            const temp = document.createElement('div');
+            temp.textContent = str || '';
+            return temp.innerHTML;
+        };
+
+        cv.innerHTML = `
+            <div class="cv-header">
+                <h1>${sanitize(state.personal.name) || translations[lang].fullName}</h1>
+                <p>${sanitize(state.summary) || translations[lang].summarySection}</p>
+            </div>
+            <main class="cv-main-content">
+                <div class="cv-left-col">
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].contactInfo}</h2>
+                        ${renderList(Object.entries(state.contact).filter(([,v])=>v),
+                        ([k,v])=>`<div class="cv-contact-item"><i class="fas fa-${{phone:'phone-alt',email:'envelope',address:'map-marker-alt',website:'globe',linkedin:'linkedin-in'}[k]}"></i><span>${sanitize(v)}</span></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].education}</h2>
+                        ${renderList(state.education,e=>`<div class="cv-item"><h3>${sanitize(e.degree)}</h3><h4>${sanitize(e.university)} (${sanitize(e.endDate)})</h4><p>${sanitize(e.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].skills}</h2>
+                        ${renderList(state.skills,s=>`<div class="cv-item"><p>${sanitize(s.value)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].certifications}</h2>
+                        ${renderList(state.certifications,c=>`<div class="cv-item"><h3>${sanitize(c.name)}</h3><h4>${sanitize(c.issuer)} (${sanitize(c.issueDate)})</h4></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].languages}</h2>
+                        ${renderList(state.languages,l=>`<div class="cv-item"><h3>${sanitize(l.name)}</h3><p>${sanitize(l.level)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].academicAwards}</h2>
+                        ${renderList(state.academicAwards,a=>`<div class="cv-item"><h3>${sanitize(a.name)}</h3><p>${sanitize(a.date)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].courses}</h2>
+                        ${renderList(state.courses,c=>`<div class="cv-item"><h3>${sanitize(c.name)}</h3><p>${sanitize(c.issuer)} - ${sanitize(c.date)}</p></div>`)}
+                    </section>
+                </div>
+                <div class="cv-right-col">
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].experience}</h2>
+                        ${renderList(state.experience,e=>`<div class="cv-item"><h3>${sanitize(e.title)}</h3><h4>${sanitize(e.company)} (${sanitize(e.startDate)} - ${sanitize(e.endDate)})</h4><p>${sanitize(e.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].projects}</h2>
+                        ${renderList(state.projects,pj=>`<div class="cv-item"><h3>${sanitize(pj.name)}</h3><p>${sanitize(pj.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].achievements}</h2>
+                        ${renderList(state.achievements,a=>`<div class="cv-item"><p>${sanitize(a.value)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].volunteerWork}</h2>
+                        ${renderList(state.volunteer,v=>`<div class="cv-item"><h3>${sanitize(v.role)}</h3><p>${sanitize(v.organization)} (${sanitize(v.startDate)} - ${sanitize(v.endDate)})</p><p>${sanitize(v.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].publications}</h2>
+                        ${renderList(state.publications,p=>`<div class="cv-item"><h3>${sanitize(p.title)}</h3><p>${sanitize(p.publisher)} (${sanitize(p.publicationDate)})</p><p>${sanitize(p.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].conferences}</h2>
+                        ${renderList(state.conferences,c=>`<div class="cv-item"><h3>${sanitize(c.name)}</h3><p>${sanitize(c.date)}</p><p>${sanitize(c.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].patents}</h2>
+                        ${renderList(state.patents,p=>`<div class="cv-item"><h3>${sanitize(p.title)}</h3><p>${sanitize(p.date)}</p><p>${sanitize(p.description)}</p></div>`)}
+                    </section>
+                    <section class="cv-section">
+                        <h2 class="cv-section-title">${translations[lang].professionalReferences}</h2>
+                        <p>${sanitize(state.references)}</p>
+                    </section>
+                </div>
+            </main>
+        `;
+    }
+
+    function loop() {
+        const fresh = snapshotFromDOM();
+        const snapStr = JSON.stringify(fresh);
+        if (snapStr !== prevSnapshot) {
+            state = fresh;
+            prevSnapshot = snapStr;
+            renderCV(currentLang);
+        }
+    }
+
+    setInterval(loop, 120);
+
+    function updateUIForLanguage(lang) {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const k = el.getAttribute('data-i18n'); if (translations[lang][k]) el.textContent = translations[lang][k];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const k = el.getAttribute('data-i18n-placeholder'); if (translations[lang][k]) el.placeholder = translations[lang][k];
+        });
+        document.title = translations[lang].appTitle;
+        document.documentElement.lang = lang;
+        document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        document.getElementById('language-toggle').textContent = translations[lang].languageToggle;
+        document.getElementById('theme-toggle').textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+        renderCV(lang);
+    }
+
+    document.querySelectorAll('.add-btn').forEach(b => b.addEventListener('click', e => {
+        const type = e.currentTarget.getAttribute('data-type');
+        const list = document.getElementById(type + '-list');
+        if (!list) return;
+        const cfg = sectionsConfig[type];
+        const card = document.createElement('div'); card.className = 'item-card';
+        let fields = '';
+        for (const k in cfg.fields) {
+            const lbl = cfg.fields[k];
+            const inputType = (k.includes('Date')) ? 'date' : 'text';
+            const isTA = cfg.isTextarea === k;
+            fields += `
+                <div class="form-group">
+                    <label>${lbl}</label>
+                    ${isTA ? `<textarea data-field="${k}"></textarea>` : `<input type="${inputType}" data-field="${k}">`}
+                </div>
+            `;
+        }
+        card.innerHTML = `<div class="item-details">${fields}</div><div class="item-actions"><button class="remove-btn" onclick="this.closest('.item-card').remove()">X</button></div>`;
+        list.appendChild(card);
+    })
+    );
+
+    document.querySelectorAll('.form-header').forEach(h => h.addEventListener('click', () => h.closest('.form-section').classList.toggle('active')));
+
+    document.getElementById('language-toggle').addEventListener('click', () => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('lang', currentLang);
+        updateUIForLanguage(currentLang);
+    });
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        const t = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('theme', t);
+        document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀️' : '🌙';
+    });
+
+    function downloadPDF() {
+        const btn = document.getElementById('download-pdf');
+        const originalText = btn.textContent;
+        btn.textContent = translations[currentLang].loading || "Loading...";
+        btn.disabled = true;
+
+        const element = document.getElementById('cv-preview');
+        const name = state.personal.name || 'CV';
+        const filename = `${name.replace(/\s+/g, '_')}.pdf`;
+
+        const opt = {
+            margin: 5,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }).catch((err) => {
+            console.error("PDF generation error:", err);
+            alert("PDF generation failed. Check the console for details.");
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    }
+    document.getElementById('download-pdf').addEventListener('click', downloadPDF);
+
+    const savedLang = localStorage.getItem('lang') || 'ar';
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+    updateUIForLanguage(savedLang);
+    renderCV(currentLang);
+
+    window.sendToCompany = function () {
+        const subject = `CV for ${state.personal.name || 'Applicant'}`;
+        const body = "Please find my CV attached.";
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    window.suggestSummary = async function () {
+        const lang = document.documentElement.lang;
+        const hasSkills = Array.isArray(state.skills) && state.skills.length > 0;
+        const hasExp = Array.isArray(state.experience) && state.experience.length > 0;
+        if (!hasSkills && !hasExp) {
+            alert(lang === 'ar' ? "يجب إضافة المهارات والخبرة أولاً." : "Add skills and experience first.");
+            return;
+        }
+        const payload = {
+            language: lang,
+            skills: (state.skills || []).map(s => s.value).filter(Boolean),
+            experience: (state.experience || []).map(e => ({
+                title: (e.title || '').trim(),
+                company: (e.company || '').trim(),
+                startDate: (e.startDate || '').trim(),
+                endDate: (e.endDate || '').trim(),
+                description: (e.description || '').trim()
+            }))
+        };
+        try {
+            const url = "https://shaimaa-hamdan.app.n8n.cloud/webhook/ai-summary";
+            const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload  ) });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const data = await res.json();
+            const summary = data?.summary ?? data?.json?.summary ?? data?.[0]?.summary ?? data?.[0]?.json?.summary ?? "No summary returned.";
+            document.querySelector("#summary-input").value = summary;
+            loop(); // استدعاء loop لتحديث المعاينة فوراً
+        } catch (err) {
+            console.error(err);
+            document.querySelector("#summary-input").value = "Failed to generate summary.";
+        }
+    };
+});
+</script>
+</body>
+</html>

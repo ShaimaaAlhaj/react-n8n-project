@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تحليل السيرة الذاتية | ATS Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --radius:.625rem;--background:oklch(.98 .01 300);--foreground:oklch(.25 .05 300);
+      --card:oklch(1 0 0);--card-foreground:oklch(.25 .05 300);--primary:oklch(.55 .15 300);
+      --primary-foreground:oklch(.98 .01 300);--secondary:oklch(.92 .05 300);
+      --secondary-foreground:oklch(.35 .08 300);--muted:oklch(.94 .03 300);
+      --muted-foreground:oklch(.55 .05 300);--border:oklch(.88 .03 300);
+      --input:oklch(.88 .03 300);--cv-accent:#2c3e50;--success:oklch(.65 .15 150);
+      --ring:oklch(.55 .15 300);--destructive:oklch(.58 .2 25)
+    }
+    .dark{
+      --background:oklch(.15 .03 300);--foreground:oklch(.92 .02 300);--card:oklch(.18 .03 300);
+      --card-foreground:oklch(.92 .02 300);--primary:oklch(.65 .15 300);
+      --primary-foreground:oklch(.15 .03 300);--secondary:oklch(.25 .05 300);
+      --secondary-foreground:oklch(.85 .05 300);--muted:oklch(.22 .04 300);
+      --muted-foreground:oklch(.65 .05 300);--border:oklch(.30 .04 300);
+      --input:oklch(.30 .04 300);--cv-accent:oklch(.8 .05 250)
+    }
+    *{box-sizing:border-box;margin:0;padding:0;transition:background-color .3s,color .3s,border-color .3s}
+    html{font-family:'Tajawal',sans-serif}
+    body{background-color:var(--background);color:var(--foreground);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;position:relative;overflow:hidden}
+
+    .top-controls{position:absolute;top:1.5rem;right:1.5rem;display:flex;gap:.75rem;z-index:20}
+    .control-button{display:flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;background-color:var(--card);border:1px solid var(--border);border-radius:9999px;color:var(--muted-foreground);cursor:pointer}
+    .control-button:hover{background-color:var(--muted)}
+    .control-button svg{width:1.25rem;height:1.25rem}
+
+    .floating-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+    .particle{position:absolute;opacity:.35;animation:float-particle linear infinite}
+    @keyframes float-particle{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-100vh) rotate(360deg)}}
+
+    .upload-card{background-color:var(--card);border:1px solid var(--border);border-radius:1.5rem;padding:2.5rem;box-shadow:0 10px 40px rgba(0,0,0,.08);width:100%;max-width:550px;position:relative;z-index:10;text-align:center}
+    h1{font-size:1.875rem;font-weight:700;margin-bottom:.5rem}
+    .upload-card p{font-size:1.1rem;color:var(--muted-foreground);margin-bottom:2.5rem}
+
+    .file-upload-wrapper{position:relative;width:100%;height:130px;border:2px dashed var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;background-color:var(--input);margin-bottom:1.5rem}
+    .file-upload-wrapper:hover{border-color:var(--primary)}
+    .file-upload-wrapper.file-uploaded{border-style:solid;border-color:var(--success);background-color:oklch(.95 .05 150 / .4)}
+    .dark .file-upload-wrapper.file-uploaded{background-color:oklch(.4 .1 150 / .3)}
+
+    .input-group{text-align:right;margin-bottom:1.5rem}
+    [dir="ltr"] .input-group{text-align:left}
+    label{display:block;font-weight:600;margin-bottom:.5rem;font-size:.9rem}
+
+    .text-input{height:3.2rem;width:100%;border-radius:var(--radius);border:1px solid var(--border);padding:0 1rem;font-size:1rem;background-color:var(--input);color:var(--foreground)}
+    .text-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px oklch(from var(--ring) l c h / .3)}
+
+    .action-button{display:none;width:100%;align-items:center;justify-content:center;height:3.5rem;border:none;cursor:pointer;border-radius:var(--radius);font-size:1.2em;font-weight:600;text-decoration:none;background:var(--primary);color:var(--primary-foreground);box-shadow:0 5px 15px oklch(.6 .15 300 / .3);animation:fadeIn .5s ease}
+    .action-button:hover{transform:translateY(-3px);box-shadow:0 8px 20px oklch(.6 .15 300 / .4)}
+    .action-button.visible{display:inline-flex}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* شارات المهارات */
+    .keyword-found{background:oklch(.9 .1 150 / .35);padding:2px 6px;border-radius:6px;margin:0 3px;display:inline-block}
+    .keyword-missing{background:oklch(.9 .1 25 / .35);padding:2px 6px;border-radius:6px;margin:0 3px;display:inline-block}
+  #ats-result {
+  max-height: 300px;   /* ارتفاع محدد */
+  overflow-y: auto;    /* يضيف scroll عمودي */
+  padding: 0.5rem;
+}
+body {
+  overflow-y: auto; /* يخلي الصفحة تقدر تتحرك */
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="top-controls">
+    <button id="language-toggle" class="control-button" title="Switch Language">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" class="control-button" title="Toggle Dark Mode">
+      <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.1-15.1 1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg>
+      <svg id="theme-icon-moon" style="display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+
+  <div class="floating-particles">
+    <div class="particle" style="left:10%;top:80%;animation-delay:0s;animation-duration:25s;width:20px;height:20px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
+    <div class="particle" style="left:20%;top:15%;animation-delay:2s;animation-duration:35s;width:25px;height:25px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--cv-accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+  </div>
+
+  <main class="upload-card">
+    <h1 id="main-title">ابدأ رحلة التحسين</h1>
+    <p id="main-subtitle">ارفع سيرتك الذاتية لمعرفة كيف يراها نظام التوظيف الآلي.</p>
+
+    <div id="main-content">
+      <div class="file-upload-wrapper" id="file-drop-area">
+        <div id="file-upload-content">
+          <div style="font-size:2.5rem;font-weight:bold;color:var(--primary)">↑</div>
+          <span id="upload-text" style="color:var(--primary);font-weight:500">ارفع سيرتك الذاتية (PDF)</span>
+          <span id="upload-hint" style="font-size:.8rem;color:var(--muted-foreground)">انقر أو اسحب الملف إلى هنا</span>
+        </div>
+      </div>
+
+      <div class="input-group" id="job-input-group" style="display:none">
+        <label for="job-details" id="job-label">المسمى الوظيفي أو رابط الوظيفة</label>
+        <input type="text" id="job-details" class="text-input" placeholder="مثال: مطور واجهات أمامية أو رابط الوظيفة"/>
+      </div>
+
+      <!-- زر التنفيذ -->
+      <button id="ats-button" class="action-button">عرض محاكاة ATS</button>
+    </div>
+
+    <!-- صندوق النتيجة -->
+    <div id="ats-result" style="margin-top:1.25rem;text-align:start"></div>
+  </main>
+
+  <input type="file" id="cv-upload" accept=".pdf" style="display:none"/>
+
+  <script>
+    const WEBHOOK_URL = "https://shaimaa-hamdan.app.n8n.cloud/webhook/cv-optimizer"; // عدّليه
+    const translations = {
+      ar:{title:"تحليل السيرة الذاتية | ATS Pro",mainTitle:"ابدأ رحلة التحسين",mainSubtitle:"ارفع سيرتك الذاتية لمعرفة كيف يراها نظام التوظيف الآلي.",uploadText:"ارفع سيرتك الذاتية (PDF)",uploadHint:"انقر أو اسحب الملف إلى هنا",jobLabel:"المسمى الوظيفي أو رابط الوظيفة",jobPlaceholder:"مثال: مطور واجهات أمامية أو رابط الوظيفة",successText:"تم اختيار الملف بنجاح!",atsButton:"عرض محاكاة ATS"},
+      en:{title:"CV Analysis | ATS Pro",mainTitle:"Start Your Improvement Journey",mainSubtitle:"Upload your CV to see how an ATS views it.",uploadText:"Upload Your CV (PDF)",uploadHint:"Click or drag file to this area",jobLabel:"Job Title or Link",jobPlaceholder:"e.g., Frontend Developer or job link",successText:"File selected successfully!",atsButton:"View ATS Simulation"}
+    };
+    let currentLang='ar', isDark=false, selectedFile=null;
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      const themeToggle=document.getElementById('theme-toggle');
+      const langToggle=document.getElementById('language-toggle');
+      const sunIcon=document.getElementById('theme-icon-sun');
+      const moonIcon=document.getElementById('theme-icon-moon');
+
+      function applyTranslations(){
+        const t=translations[currentLang];
+        document.title=t.title;
+        document.documentElement.lang=currentLang;
+        document.documentElement.dir=currentLang==='ar'?'rtl':'ltr';
+        document.getElementById('main-title').textContent=t.mainTitle;
+        document.getElementById('main-subtitle').textContent=t.mainSubtitle;
+        document.getElementById('upload-text').textContent=t.uploadText;
+        document.getElementById('upload-hint').textContent=t.uploadHint;
+        document.getElementById('job-label').textContent=t.jobLabel;
+        document.getElementById('job-details').placeholder=t.jobPlaceholder;
+        document.getElementById('ats-button').textContent=t.atsButton;
+      }
+      function applyTheme(){
+        if(isDark){document.documentElement.classList.add('dark');sunIcon.style.display='none';moonIcon.style.display='block'}
+        else{document.documentElement.classList.remove('dark');sunIcon.style.display='block';moonIcon.style.display='none'}
+      }
+      themeToggle.addEventListener('click',()=>{isDark=!isDark;applyTheme()});
+      langToggle.addEventListener('click',()=>{currentLang=currentLang==='ar'?'en':'ar';applyTranslations()});
+      applyTheme();applyTranslations();
+
+      const fileInput=document.getElementById('cv-upload');
+      const fileDropArea=document.getElementById('file-drop-area');
+      const fileUploadContent=document.getElementById('file-upload-content');
+      const atsButton=document.getElementById('ats-button');
+      const jobInputGroup=document.getElementById('job-input-group');
+      const jobInput=document.getElementById('job-details');
+      const resultBox=document.getElementById('ats-result');
+
+      function handleFileSelect(files){
+        if(!files||!files.length) return;
+        selectedFile=files[0];
+        fileDropArea.classList.add('file-uploaded');
+        const t=translations[currentLang];
+        fileUploadContent.innerHTML=
+          `<div style="font-size:2.5rem;line-height:1;color:var(--success)">✓</div>
+           <span style="color:oklch(.4 .1 150);font-weight:500">${t.successText}</span>
+           <span style="font-weight:500;color:oklch(.4 .1 150);font-size:.8rem">${selectedFile.name}</span>`;
+        jobInputGroup.style.display='block';
+        atsButton.classList.add('visible');
+      }
+
+      fileDropArea.addEventListener('click',()=>fileInput.click());
+      fileDropArea.addEventListener('dragover',e=>e.preventDefault());
+      fileDropArea.addEventListener('drop',e=>{e.preventDefault();handleFileSelect(e.dataTransfer.files)});
+      fileInput.addEventListener('change',()=>handleFileSelect(fileInput.files));
+
+      atsButton.addEventListener('click',async(e)=>{
+        e.preventDefault();
+        resultBox.innerHTML='';
+        if(!selectedFile){alert('ارفع ملف PDF أولاً');return;}
+        const jobVal=(jobInput.value||'').trim();
+        if(!jobVal){alert('أدخل المسمى الوظيفي أو رابط الوظيفة');return;}
+
+        atsButton.disabled=true; atsButton.textContent='يعالج...';
+        resultBox.innerHTML='<div style="opacity:.7">جاري التحليل...</div>';
+
+        try{
+          const fd = new FormData();
+             fd.append('cv', selectedFile);  // ملف السيرة الذاتية دايمًا
+
+            if (jobVal.startsWith("http")) {
+                fd.append('job_url', jobVal);   // إذا كان رابط
+            } else {
+                fd.append('job_text', jobVal);  // إذا كان نص
+            }
+
+     // غيّريه إلى job_title إن لزم
+
+          const r=await fetch(WEBHOOK_URL,{method:'POST',body:fd});
+          if(!r.ok) throw new Error('HTTP '+r.status);
+        const data = await r.json();
+const result = data.output || {};
+
+
+
+const score = (result.fit_score != null) ? `${result.fit_score}%` : '-';
+
+
+const matched = Array.isArray(result.matched_skills) ? result.matched_skills : [];
+const missing = Array.isArray(result.missing_critical) ? result.missing_critical : [];
+
+resultBox.innerHTML = `
+  <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;background:var(--card)">
+    <div style="font-weight:700;color:var(--primary);margin-bottom:.5rem">نتيجة المحاكاة</div>
+    <div><b>المسمى الوظيفي:</b> ${result.job_title || '-'}</div>
+    <div><b>الموقع:</b> ${result.location || '-'}</div>
+    <div><b>درجة المطابقة:</b> ${result.fit_score ? result.fit_score + '%' : '-'}</div>
+
+    
+    <div><b>التوصية:</b> ${result.recommendation || '-'}</div>
+    <div style="margin-top:.5rem"><b>النصيحة:</b> ${result.advice || '-'}</div>
+    
+
+    <div style="margin-top:.5rem"><b>المهارات المتطابقة:</b> ${matched.map(s => `<span class="keyword-found">${s}</span>`).join(' ')}
+
+      </div>
+    <div style="margin-top:.5rem"><b>المهارات الناقصة:</b> ${missing.map(s => `<span class="keyword-missing">${s}</span>`).join(' ')}
+
+      
+      </div>
+    
+    <div style="margin-top:.5rem"><b> إرشادات :</b> ${result.final_recommendation || '-'}</div>
+    
+    <div style="margin-top:.5rem"><b> CV تحسين الـ :</b> ${result.cv_optimization || '-'}</div>
+  </div>`;
+
+
+        }catch(err){
+          resultBox.innerHTML=`<div style="color:var(--destructive)">فشل التحليل: ${err.message}</div>`;
+        }finally{
+          atsButton.disabled=false; atsButton.textContent=translations[currentLang].atsButton;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<html lang="en" dir="ltr" class="dark"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-key="title">CV Builder - Traditional Template</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <style>
+        /* --- Theme Variables Integration --- */
+        :root {
+            --radius: 0.625rem;
+            --background: oklch(0.98 0.01 300   );
+            --foreground: oklch(0.25 0.05 300);
+            --card: oklch(1 0 0);
+            --card-foreground: oklch(0.25 0.05 300);
+            --primary: oklch(0.55 0.15 300);
+            --primary-foreground: oklch(0.98 0.01 300);
+            --secondary: oklch(0.92 0.05 300);
+            --secondary-foreground: oklch(0.35 0.08 300);
+            --muted: oklch(0.94 0.03 300);
+            --muted-foreground: oklch(0.55 0.05 300);
+            --border: oklch(0.88 0.03 300);
+            --input: oklch(0.88 0.03 300);
+        }
+        .dark {
+            --background: oklch(0.15 0.03 300);
+            --foreground: oklch(0.92 0.02 300);
+            --card: oklch(0.18 0.03 300);
+            --card-foreground: oklch(0.92 0.02 300);
+            --primary: oklch(0.65 0.15 300);
+            --primary-foreground: oklch(0.15 0.03 300);
+            --secondary: oklch(0.25 0.05 300);
+            --secondary-foreground: oklch(0.85 0.05 300);
+            --muted: oklch(0.22 0.04 300);
+            --muted-foreground: oklch(0.65 0.05 300);
+            --border: oklch(0.30 0.04 300);
+            --input: oklch(0.30 0.04 300);
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap'   );
+        
+        body { font-family: 'Cairo', 'Roboto', sans-serif; background-color: var(--background); color: var(--foreground); margin: 0; height: 100vh; }
+        .app-container { display: flex; width: 100%; height: calc(100vh - 65px); }
+
+        .controls { width: 45%; padding: 30px; background-color: var(--card); border-left: 1px solid var(--border); overflow-y: auto; box-sizing: border-box; }
+        [dir="rtl"] .controls { border-left: none; border-right: 1px solid var(--border); }
+        .controls h2 { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 30px; }
+        .section-block { margin-bottom: 20px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius); }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { font-weight: 600; margin-bottom: 8px; display: block; color: var(--muted-foreground); }
+        .input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 1rem; box-sizing: border-box; background-color: var(--input); color: var(--foreground); }
+        .add-btn, .remove-btn { background-color: var(--primary); color: var(--primary-foreground); border: none; padding: 10px 15px; border-radius: var(--radius); cursor: pointer; margin-top: 10px; width: 100%; box-sizing: border-box; }
+        .remove-btn { background-color: #777; float: left; width: auto; }
+        [dir="rtl"] .remove-btn { float: right; }
+        .dynamic-add-group { display: flex; gap: 5px; }
+        .dynamic-add-group .add-btn { width: auto; }
+        .ai-writer-btn { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--primary); background-color: transparent; border: 1px solid var(--primary); border-radius: var(--radius); cursor: pointer; margin-top: 8px; padding: 6px 12px; transition: background-color 0.2s; }
+        .ai-writer-btn:hover { background-color: oklch(from var(--primary) l h c / 0.1); }
+
+        .action-controls { display: flex; gap: 10px; }
+        .action-btn { flex-grow: 1; display: inline-flex; justify-content: center; align-items: center; gap: 8px; background-color: var(--primary); color: var(--primary-foreground); border: none; padding: 12px 15px; border-radius: var(--radius); cursor: pointer; font-weight: 600; }
+        .action-btn.pdf { background-color: #c1121f; } /* Red for PDF */
+        .action-btn.send { background-color: #003049; } /* Dark blue for Send */
+        .action-btn:hover { opacity: 0.9; }
+
+        .preview { width: 55%; padding: 40px; background-color: var(--background); display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; box-sizing: border-box; }
+        .cv-wrapper { width: 210mm; min-height: 297mm; background-color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 25mm; box-sizing: border-box; color: #333; }
+        
+        .trad-header { text-align: center; margin-bottom: 25px; }
+        .trad-header h1 { font-size: 28pt; font-weight: 900; margin: 0; letter-spacing: 1px; color: #111; }
+        .trad-header h2 { font-size: 14pt; font-weight: 700; margin: 5px 0; color: #444; }
+        .trad-contact-info { display: flex; justify-content: center; gap: 15px; font-size: 9pt; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .trad-contact-info span { display: inline-flex; align-items: center; gap: 5px; }
+        .trad-section { margin-bottom: 20px; }
+        .trad-section-title { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px; }
+        .trad-summary p { font-size: 10pt; line-height: 1.6; }
+        .trad-item { margin-bottom: 15px; }
+        .trad-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+        .trad-item-header h3 { font-size: 11pt; font-weight: 700; margin: 0; }
+        .trad-item-header span { font-size: 10pt; font-weight: 500; color: #555; }
+        .trad-item-subheader { font-size: 10pt; font-style: italic; color: #666; margin-bottom: 8px; }
+        .trad-item ul { list-style-type: '•'; padding-left: 20px; margin: 0; font-size: 10pt; line-height: 1.7; }
+        .trad-skills-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 20px; }
+        .trad-skills-container ul { list-style: none; padding: 0; }
+        .trad-additional-info ul { list-style: none; padding: 0; }
+        .trad-additional-info li { display: flex; margin-bottom: 5px; }
+        .trad-additional-info strong { font-weight: 700; width: 100px; flex-shrink: 0; }
+        [dir="rtl"] .trad-additional-info strong { text-align: left; margin-left: 10px; }
+        
+        .editor-header { padding: 1rem 1.5rem; background-color: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; height: 65px; }
+        .controls-group { display: flex; gap: 0.75rem; }
+        
+        .control-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .control-btn { background-color: var(--secondary); color: var(--secondary-foreground); }
+        .control-btn:hover { background-color: var(--muted); border-color: var(--primary); }
+        .dark .control-btn { background-color: var(--secondary); color: var(--secondary-foreground); }
+        .dark .control-btn:hover { background-color: oklch(from var(--secondary) l h c / 0.5); }
+    </style>
+</head>
+<body>
+    <header class="editor-header">
+        <h1 class="editor-title" data-key="editorTitle">CV Editor: Traditional</h1>
+        <div class="controls-group">
+            <button id="language-toggle" class="control-btn" data-key="toggleLang">العربية</button>
+            <button id="dark-mode-toggle" class="control-btn" data-key="toggleTheme">Dark Mode</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <div class="controls">
+            <h2 data-key="cvBuilder">CV Builder</h2>
+            <div class="section-block">
+                <h3 data-key="mainInfo">Main Info</h3>
+                <div class="input-group"><label data-key="fullName">Full Name</label><input type="text" id="name-input"></div>
+                <div class="input-group"><label data-key="jobTitle">Job Title</label><input type="text" id="title-input"></div>
+            </div>
+            <div class="section-block">
+                <h3 data-key="contact">Contact</h3>
+                <div class="input-group"><label data-key="address">Address</label><input type="text" id="address-input"></div>
+                <div class="input-group"><label data-key="email">Email</label><input type="email" id="email-input"></div>
+                <div class="input-group"><label data-key="website">Website</label><input type="text" id="website-input"></div>
+            </div>
+             <div class="section-block">
+                <div class="section-block"><h3 data-key="skills">Skills</h3><div id="skills-container" class="input-group"></div><div class="dynamic-add-group"><input type="text" id="skill-input" data-key-placeholder="addSkillPlaceholder" placeholder="Add a skill"><button class="add-btn" onclick="addToList('skills', 'skill-input')">+</button></div></div>
+            </div>
+            <div id="experience-container"></div><button class="add-btn" onclick="addExperience()" data-key="addExperience">+ Add Experience</button>
+            <div id="projects-container"></div><button class="add-btn" onclick="addProject()" data-key="addProject">+ Add Project</button>
+               <div class="section-block">
+                <h3 data-key="summary">Summary</h3>
+                <div class="input-group">
+                    <textarea id="summary-input" rows="5"></textarea>
+                    <button class="ai-writer-btn" onclick="suggestSummary()"><i class="fas fa-magic-sparkles"></i> <span data-key="aiWriter">Suggest with AI</span></button>
+                </div>
+            </div>
+            <div id="education-container"></div><button class="add-btn" onclick="addEducation()" data-key="addEducation">+ Add Education</button>
+            <div class="section-block"><h3 data-key="additionalInfo">Additional Information</h3>
+                <div class="input-group"><label data-key="languages">Languages</label><input type="text" id="languages-input"></div>
+                <div class="input-group"><label data-key="certifications">Certifications</label><input type="text" id="certs-input"></div>
+                <div class="input-group"><label data-key="awards">Awards/Activities</label><input type="text" id="awards-input"></div>
+            </div>
+            <div class="section-block">
+                <h3 data-key="finalActions">Final Actions</h3>
+                <div class="action-controls">
+                    <button class="action-btn pdf" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> <span data-key="downloadPDF">Download PDF</span></button>
+                    <button class="action-btn send" onclick="sendToHR()"><i class="fas fa-paper-plane"></i> <span data-key="sendToHR">Send to HR</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview"><div id="cv-wrapper" class="cv-wrapper">
+                 <div class="trad-header">
+                    <h1>Full Name</h1>
+                    <h2>Job Title</h2>
+                </div>
+                <div class="trad-contact-info">
+                    
+                    
+                    
+                </div>
+                <div class="trad-section trad-summary"><h3 class="trad-section-title">Summary</h3><p>...</p></div>
+                <div class="trad-section"><h3 class="trad-section-title">Add Experience</h3><p>...</p></div>
+                <div class="trad-section"><h3 class="trad-section-title">Add Project</h3><p>...</p></div>
+                <div class="trad-section"><h3 class="trad-section-title">Skills</h3><div class="trad-skills-container"><p>...</p></div></div>
+                <div class="trad-section"><h3 class="trad-section-title">Add Education</h3><p>...</p></div>
+                <div class="trad-section trad-additional-info"><h3 class="trad-section-title">Additional Information</h3><ul>
+                    
+                    
+                    
+                    <li>...</li>
+                </ul></div>
+            </div></div>
+    </div>
+
+    <script>
+        const translations = {
+            ar: {
+                title: "محرر السيرة الذاتية - القالب التقليدي", editorTitle: "محرر السيرة الذاتية: التقليدي", toggleLang: "English", toggleTheme: "الوضع الليلي",
+                cvBuilder: "محرر السيرة الذاتية", mainInfo: "المعلومات الرئيسية", fullName: "الاسم الكامل", jobTitle: "المسمى الوظيفي",
+                contact: "معلومات التواصل", address: "العنوان", email: "البريد الإلكتروني", website: "الموقع الإلكتروني",
+                summary: "الملخص الاحترافي",
+                addExperience: "+ إضافة خبرة", addProject: "+ إضافة مشروع", addEducation: "+ إضافة تعليم",
+                skills: "المهارات", addSkillPlaceholder: "أضف مهارة",
+                additionalInfo: "معلومات إضافية", languages: "اللغات", certifications: "الشهادات", awards: "الجوائز والأنشطة",
+                finalActions: "الإجراءات النهائية", downloadPDF: "تحميل PDF", sendToHR: "إرسال لإدارة الموارد البشرية",
+                aiWriter: "اقتراح بالذكاء الاصطناعي",
+                expTitle: "المسمى الوظيفي", expCompany: "الشركة والبرنامج", expDates: "التواريخ", expDesc: "الوصف (كل نقطة في سطر)",
+                projTitle: "اسم المشروع", projOrg: "الجهة/الجامعة", projDates: "التواريخ", projDesc: "تفاصيل المشروع",
+                eduDegree: "الشهادة", eduSchool: "الجامعة", eduDates: "التواريخ",
+                remove: "إزالة",
+                aiSummarySuggestion: "مهندس عملي ذو خبرة كبيرة في تصميم العمليات...",
+                aiDescSuggestion: "• قيادة تطوير نظام أتمتة متقدم...",
+                sendSuccessMessage: "تم إرسال بياناتك بنجاح. يرجى مراجعة بريدك الإلكتروني ({email}) للحصول على التحديثات من الموارد البشرية."
+            },
+            en: {
+                title: "CV Builder - Traditional Template", editorTitle: "CV Editor: Traditional", toggleLang: "العربية", toggleTheme: "Dark Mode",
+                cvBuilder: "CV Builder", mainInfo: "Main Info", fullName: "Full Name", jobTitle: "Job Title",
+                contact: "Contact", address: "Address", email: "Email", website: "Website",
+                summary: "Summary",
+                addExperience: "+ Add Experience", addProject: "+ Add Project", addEducation: "+ Add Education",
+                skills: "Skills", addSkillPlaceholder: "Add a skill",
+                additionalInfo: "Additional Information", languages: "Languages", certifications: "Certifications", awards: "Awards/Activities",
+                finalActions: "Final Actions", downloadPDF: "Download PDF", sendToHR: "Send to HR",
+                aiWriter: "Suggest with AI",
+                expTitle: "Job Title", expCompany: "Company, Program", expDates: "Dates", expDesc: "Description (one point per line)",
+                projTitle: "Project Name", projOrg: "Organization/University", projDates: "Dates", projDesc: "Project Details",
+                eduDegree: "Degree", eduSchool: "University", eduDates: "Dates",
+                remove: "Remove",
+                aiSummarySuggestion: "Practical Engineer with Significant Experience...",
+                aiDescSuggestion: "• Led development of an advanced automation system...",
+                sendSuccessMessage: "Your data has been sent successfully. Please check your email ({email}) for updates from HR."
+            }
+        };
+
+        let state = {
+            personal: { name: '', title: '' },
+            contact: { address: '', email: '', website: '' },
+            summary: '',
+            experience: [],
+            projects: [],
+            skills: [],
+            education: [],
+            additional: { languages: '', certifications: '', awards: '' }
+        };
+
+        function renderAll() {
+            const wrapper = document.getElementById('cv-wrapper');
+            const lang = document.documentElement.lang;
+            const t = translations[lang];
+            const { personal, contact, summary, experience, projects, skills, education, additional } = state;
+            
+            const skillsColumns = [[], [], []];
+            skills.forEach((skill, i) => skillsColumns[i % 3].push(skill));
+
+            wrapper.innerHTML = `
+                <div class="trad-header">
+                    <h1>${personal.name || t.fullName}</h1>
+                    <h2>${personal.title || t.jobTitle}</h2>
+                </div>
+                <div class="trad-contact-info">
+                    ${contact.address ? `<span><i class="fas fa-map-marker-alt"></i> ${contact.address}</span>` : ''}
+                    ${contact.email ? `<span><i class="fas fa-envelope"></i> ${contact.email}</span>` : ''}
+                    ${contact.website ? `<span><i class="fas fa-globe"></i> ${contact.website}</span>` : ''}
+                </div>
+                <div class="trad-section trad-summary"><h3 class="trad-section-title">${t.summary}</h3><p>${summary || '...'}</p></div>
+                <div class="trad-section"><h3 class="trad-section-title">${t.addExperience.replace('+ ', '')}</h3>${experience.length > 0 ? experience.map(exp => `
+                    <div class="trad-item">
+                        <div class="trad-item-header"><h3>${exp.title || ''}</h3><span>${exp.dates || ''}</span></div>
+                        <p class="trad-item-subheader">${exp.company || ''}</p>
+                        <ul>${(exp.desc || '').split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('')}</ul>
+                    </div>`).join('') : '<p>...</p>'}</div>
+                <div class="trad-section"><h3 class="trad-section-title">${t.addProject.replace('+ ', '')}</h3>${projects.length > 0 ? projects.map(proj => `
+                    <div class="trad-item">
+                        <div class="trad-item-header"><h3>${proj.title || ''}</h3><span>${proj.dates || ''}</span></div>
+                        <p class="trad-item-subheader">${proj.org || ''}</p>
+                        <ul>${(proj.desc || '').split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('')}</ul>
+                    </div>`).join('') : '<p>...</p>'}</div>
+                <div class="trad-section"><h3 class="trad-section-title">${t.skills}</h3><div class="trad-skills-container">${skills.length > 0 ? skillsColumns.map(col => `<ul>${col.map(s => `<li>${s}</li>`).join('')}</ul>`).join('') : '<p>...</p>'}</div></div>
+                <div class="trad-section"><h3 class="trad-section-title">${t.addEducation.replace('+ ', '')}</h3>${education.length > 0 ? education.map(edu => `
+                    <div class="trad-item">
+                        <div class="trad-item-header"><h3>${edu.degree || ''}</h3><span>${edu.dates || ''}</span></div>
+                        <p class="trad-item-subheader">${edu.school || ''}</p>
+                    </div>`).join('') : '<p>...</p>'}</div>
+                <div class="trad-section trad-additional-info"><h3 class="trad-section-title">${t.additionalInfo}</h3><ul>
+                    ${additional.languages ? `<li><strong>${t.languages}:</strong><p>${additional.languages}</p></li>` : ''}
+                    ${additional.certifications ? `<li><strong>${t.certifications}:</strong><p>${additional.certifications}</p></li>` : ''}
+                    ${additional.awards ? `<li><strong>${t.awards}:</strong><p>${additional.awards}</p></li>` : ''}
+                    ${!additional.languages && !additional.certifications && !additional.awards ? '<li>...</li>' : ''}
+                </ul></div>
+            `;
+        }
+
+        function applyLanguage(lang) {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.dataset.key;
+                if (translations[lang][key]) el.textContent = translations[lang][key];
+            });
+            document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+                const key = el.dataset.keyPlaceholder;
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+            renderAll();
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        }
+
+        function setupEventListeners() {
+            const initialLang = localStorage.getItem('language') || 'ar';
+            const initialTheme = localStorage.getItem('theme') || 'light';
+            applyLanguage(initialLang);
+            applyTheme(initialTheme);
+
+            document.getElementById('language-toggle').addEventListener('click', () => {
+                const newLang = document.documentElement.lang === 'ar' ? 'en' : 'ar';
+                localStorage.setItem('language', newLang);
+                applyLanguage(newLang);
+            });
+            document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+                const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            document.getElementById('name-input').oninput = e => { state.personal.name = e.target.value; renderAll(); };
+            document.getElementById('title-input').oninput = e => { state.personal.title = e.target.value; renderAll(); };
+            document.getElementById('address-input').oninput = e => { state.contact.address = e.target.value; renderAll(); };
+            document.getElementById('email-input').oninput = e => { state.contact.email = e.target.value; renderAll(); };
+            document.getElementById('website-input').oninput = e => { state.contact.website = e.target.value; renderAll(); };
+            document.getElementById('summary-input').oninput = e => { state.summary = e.target.value; renderAll(); };
+            document.getElementById('languages-input').oninput = e => { state.additional.languages = e.target.value; renderAll(); };
+            document.getElementById('certs-input').oninput = e => { state.additional.certifications = e.target.value; renderAll(); };
+            document.getElementById('awards-input').oninput = e => { state.additional.awards = e.target.value; renderAll(); };
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            renderAll();
+        });
+
+        async function suggestSummary() {
+ const lang = document.documentElement.lang;
+
+  // منع النداء إذا ما في أي بيانات مفيدة
+  const hasSkills = Array.isArray(state.skills) && state.skills.length > 0;
+  const hasExp = Array.isArray(state.experience) && state.experience.length > 0;
+  if (!hasSkills && !hasExp) {
+    alert(lang === 'ar'
+      ? "يجب إضافة المهارات والخبرة أولاً قبل استخدام الاقتراح بالذكاء الاصطناعي."
+      : "You must add skills and experience first before using AI suggestion.");
+    return;
+  }
+
+  // جهّزي الحمولة بشكل صريح
+  const payload = {
+    language: lang,
+    skills: (state.skills || []).filter(Boolean),
+    experience: (state.experience || []).map(e => ({
+      title: (e.title || '').trim(),
+      company: (e.company || '').trim(),
+      dates: (e.dates || '').trim(),
+      bullets: (e.desc || '')
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean),
+    }))
+  };
+
+  try {
+    const url = "https://shaimaa-hamdan.app.n8n.cloud/webhook/ai-summary";
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+
+    const summary =
+      data?.summary ??
+      data?.json?.summary ??
+      data?.[0]?.summary ??
+      data?.[0]?.json?.summary ??
+      "No summary returned.";
+
+    state.summary = summary;
+    document.querySelector("#summary-input").value = summary; 
+    renderAll();                           
+  } catch (err) {
+    console.error(err);
+    document.querySelector("#summary-input").value = "Failed to generate summary.";
+  }
+}
+  
+
+        function addToList(type, inputId) {
+            const input = document.getElementById(inputId);
+            if (input.value.trim()) {
+                if (!Array.isArray(state[type])) state[type] = [];
+                state[type].push(input.value.trim());
+                input.value = '';
+                renderAll();
+                if (type === 'skills') {
+                }
+            }
+        }
+
+        function createDynamicSection(type, index) {
+            const container = document.getElementById(`${type}-container`);
+            const block = document.createElement('div');
+            block.className = 'section-block';
+            block.id = `${type}-block-${index}`;
+            const lang = document.documentElement.lang;
+            const t = translations[lang];
+            let html = '';
+
+            if (type === 'experience') {
+                html = `<h3>${t.addExperience.replace('+ ', '')} #${index + 1}<button class="remove-btn" onclick="removeSection('${type}', ${index})">X</button></h3>
+                        <div class="input-group"><label>${t.expTitle}</label><input type="text" oninput="updateSection('${type}',${index},'title',this.value)"></div>
+                        <div class="input-group"><label>${t.expCompany}</label><input type="text" oninput="updateSection('${type}',${index},'company',this.value)"></div>
+                        <div class="input-group"><label>${t.expDates}</label><input type="text" oninput="updateSection('${type}',${index},'dates',this.value)"></div>
+                        <div class="input-group"><label>${t.expDesc}</label><textarea rows="3" oninput="updateSection('${type}',${index},'desc',this.value)"></textarea></div>`;
+            } else if (type === 'education') {
+                html = `<h3>${t.addEducation.replace('+ ', '')} #${index + 1}<button class="remove-btn" onclick="removeSection('${type}', ${index})">X</button></h3>
+                        <div class="input-group"><label>${t.eduDegree}</label><input type="text" oninput="updateSection('${type}',${index},'degree',this.value)"></div>
+                        <div class="input-group"><label>${t.eduSchool}</label><input type="text" oninput="updateSection('${type}',${index},'school',this.value)"></div>
+                        <div class="input-group"><label>${t.eduDates}</label><input type="text" oninput="updateSection('${type}',${index},'dates',this.value)"></div>`;
+            } else if (type === 'projects') {
+                html = `<h3>${t.addProject.replace('+ ', '')} #${index + 1}<button class="remove-btn" onclick="removeSection('${type}', ${index})">X</button></h3>
+                        <div class="input-group"><label>${t.projTitle}</label><input type="text" oninput="updateSection('${type}',${index},'title',this.value)"></div>
+                        <div class="input-group"><label>${t.projOrg}</label><input type="text" oninput="updateSection('${type}',${index},'org',this.value)"></div>
+                        <div class="input-group"><label>${t.projDates}</label><input type="text" oninput="updateSection('${type}',${index},'dates',this.value)"></div>
+                        <div class="input-group"><label>${t.projDesc}</label><textarea rows="3" oninput="updateSection('${type}',${index},'desc',this.value)"></textarea></div>`;
+            }
+            block.innerHTML = html;
+            container.appendChild(block);
+        }
+
+        function addExperience() { createDynamicSection('experience', state.experience.push({ id: Date.now(), title: '', company: '', dates: '', desc: '' }) - 1); }
+        function addEducation() { createDynamicSection('education', state.education.push({ id: Date.now(), degree: '', school: '', dates: '' }) - 1); }
+        function addProject() { createDynamicSection('projects', state.projects.push({ id: Date.now(), title: '', org: '', dates: '', desc: '' }) - 1); }
+        
+        function updateSection(type, index, field, value) { 
+            if(state[type][index]) {
+                state[type][index][field] = value; 
+            }
+            renderAll(); 
+        }
+        
+        function removeSection(type, index) {
+            state[type].splice(index, 1);
+            document.getElementById(`${type}-container`).innerHTML = '';
+            state[type].forEach((item, i) => {
+                createDynamicSection(type, i);
+                const block = document.getElementById(`${type}-block-${i}`);
+                Object.keys(item).forEach(field => {
+                    const input = block.querySelector(`[oninput*="'${field}'"]`);
+                    if (input) input.value = item[field];
+                });
+            });
+            renderAll();
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('cv-wrapper');
+            const opt = { 
+                margin: 0, 
+                filename: `${state.personal.name || 'CV'}.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        async function sendToHR() {
+            const lang = document.documentElement.lang;
+            const t = translations[lang];
+
+            if (!state.contact.email || !state.personal.title) {
+                alert(lang === 'ar'
+                ? 'الرجاء إدخال البريد الإلكتروني والمسمى الوظيفي أولاً قبل الإرسال.'
+                : 'Please enter your email and job title before sending.');
+                return;
+            }
+
+            const webhookURL = "https://shaimaa-hamdan.app.n8n.cloud/webhook/930f2b6a-f068-4c8d-9ed5-15bf7bcfbd76";
+
+            const payload = {
+                language: lang,
+                candidate: {
+                    name: (state.personal.name || '' ).trim(),
+                    email: (state.contact.email || '').trim(),
+                    jobTitle: (state.personal.title || '').trim(),
+                },
+                cv: {
+                    summary: (state.summary || '').trim(),
+                    skills: (state.skills || []).filter(Boolean),
+                    experience: (state.experience || []).map(e => ({
+                        title: (e.title || '').trim(),
+                        company: (e.company || '').trim(),
+                        dates: (e.dates || '').trim(),
+                        bullets: (e.desc || '').split('\n').map(s => s.trim()).filter(Boolean)
+                    })),
+                    projects: (state.projects || []).map(p => ({
+                        title: (p.title || '').trim(),
+                        org: (p.org || '').trim(),
+                        dates: (p.dates || '').trim(),
+                        bullets: (p.desc || '').split('\n').map(s => s.trim()).filter(Boolean)
+                    })),
+                    education: (state.education || []).map(ed => ({
+                        degree: (ed.degree || '').trim(),
+                        school: (ed.school || '').trim(),
+                        dates: (ed.dates || '').trim()
+                    }))
+                }
+            };
+
+            try {
+                const res = await fetch(webhookURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                await res.json().catch(() => ({}));
+                
+                const successMessage = t.sendSuccessMessage.replace('{email}', state.contact.email);
+                alert(successMessage);
+
+            } catch (err) {
+                console.error("Send to HR failed:", err);
+                alert(lang === 'ar' ? 'فشل إرسال البيانات. يرجى المحاولة مرة أخرى.' : 'Failed to send data. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

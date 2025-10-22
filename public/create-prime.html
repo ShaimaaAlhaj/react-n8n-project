@@ -1,0 +1,600 @@
+<html lang="en" dir="ltr" class="dark" style="--cv-accent: #27ae60;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-key="title">Customize Prime ATS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap" rel="stylesheet">
+    
+    <style>
+        /* ✅✅✅  FIX: Replaced oklch( ) with standard hex/rgb colors for PDF compatibility ✅✅✅ */
+        :root {
+          --radius: 0.625rem;
+          --background: #fcfbff;
+          --foreground: #3f3c43;
+          --card: #ffffff;
+          --card-foreground: #3f3c43;
+          --primary: #8a43e6;
+          --primary-foreground: #fcfbff;
+          --secondary: #e9e4f0;
+          --secondary-foreground: #585360;
+          --muted: #f0edf5;
+          --muted-foreground: #8a8395;
+          --border: #dfd9e7;
+          --input: #dfd9e7;
+          --cv-accent: #2c3e50;
+        }
+        .dark {
+          --background: #252328;
+          --foreground: #e9e8ea;
+          --card: #2c2930;
+          --card-foreground: #e9e8ea;
+          --primary: #af87ee;
+          --primary-foreground: #252328;
+          --secondary: #3f3c43;
+          --secondary-foreground: #d7d3db;
+          --muted: #35323a;
+          --muted-foreground: #a29cab;
+          --border: #4c4853;
+          --input: #4c4853;
+          --cv-accent: #a3b8ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-family: 'Cairo', ui-sans-serif, system-ui, sans-serif; line-height: 1.5; }
+        body { background-color: var(--background); color: var(--foreground); }
+        .editor-layout { display: flex; height: calc(100vh - 65px); }
+        .editor-panel { width: 480px; padding: 1.5rem; background-color: var(--card); border-right: 1px solid var(--border); overflow-y: auto; order: 1; }
+        .preview-panel { flex-grow: 1; padding: 2rem; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; order: 2; }
+        [dir="rtl"] .editor-panel { border-right: none; border-left: 1px solid var(--border); }
+        .accordion-item { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; }
+        .accordion-header { background-color: var(--secondary); padding: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .accordion-header .arrow { transition: transform 0.3s; }
+        .accordion-content { padding: 1.5rem; border-top: 1px solid var(--border); display: none; }
+        .accordion-item.open .accordion-content { display: block; }
+        .accordion-item.open .accordion-header .arrow { transform: rotate(180deg); }
+        .form-group { margin-bottom: 1rem; position: relative; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--muted-foreground); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border-radius: var(--radius); border: 1px solid var(--border); background-color: var(--input); color: var(--foreground); font-size: 1rem; }
+        .phone-group { display: flex; }
+        .phone-group select { width: 40%; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+        .phone-group input { width: 60%; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+        [dir="rtl"] .phone-group select { border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: var(--radius); border-bottom-right-radius: var(--radius); }
+        [dir="rtl"] .phone-group input { border-top-right-radius: 0; border-bottom-right-radius: 0; border-top-left-radius: var(--radius); border-bottom-left-radius: var(--radius); }
+        .add-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 600; font-size: 0.9rem; margin-top: 1rem; }
+        .dynamic-item { border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius); margin-top: 1rem; position: relative; }
+        .dynamic-item-small { display: flex; align-items: center; gap: 1rem; }
+        .dynamic-item-small .form-group { flex-grow: 1; margin-bottom: 0; }
+        .remove-btn { position: absolute; top: -10px; left: -10px; background-color: #e74c3c; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        [dir="rtl"] .remove-btn { left: auto; right: -10px; }
+        .dynamic-item-small .remove-btn { position: static; }
+        .ai-writer-btn { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--primary); background-color: transparent; border: 1px solid var(--primary); border-radius: var(--radius); cursor: pointer; margin-top: 0.5rem; padding: 0.25rem 0.5rem; }
+        .ai-writer-btn:hover { background-color: rgba(138, 67, 230, 0.1); }
+        #upload-wrapper { border: 2px dashed var(--border); border-radius: var(--radius); padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+        #upload-wrapper:hover { border-color: var(--primary); }
+        #profile-pic-input { display: none; }
+        .color-dots { display: flex; gap: 0.5rem; }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 3px solid var(--background); box-shadow: 0 0 0 1px var(--border); }
+        .color-dot.active { box-shadow: 0 0 0 2px var(--primary); }
+        .editor-header { padding: 1rem 1.5rem; background-color: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; height: 65px; }
+        .controls-group { display: flex; gap: 0.75rem; }
+        .control-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: var(--radius); border: 1px solid var(--border); background-color: var(--background); cursor: pointer; font-weight: 500; }
+        .control-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        .control-btn.primary { background-color: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+        .dark .control-btn { background-color: var(--secondary); color: var(--secondary-foreground); }
+        .dark .control-btn.primary { background-color: var(--primary); color: var(--primary-foreground); }
+        #cv-preview-wrapper { transform: scale(0.9); transform-origin: top center; }
+        #cv-preview { background-color: white; color: #333; width: 210mm; min-height: 297mm; padding: 25mm; box-shadow: 0 0 20px rgba(0,0,0,0.1); font-family: 'Helvetica', 'Arial', sans-serif; }
+        .cv-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px; }
+        .cv-header-main { flex-grow: 1; }
+        .cv-name { font-size: 2.5rem; font-weight: bold; margin: 0; color: var(--cv-accent); transition: color .3s; }
+        .cv-job-title { font-size: 1.2rem; margin-top: 5px; color: #555; }
+        .cv-contact-info { text-align: right; font-size: 0.9rem; color: #444; }
+        [dir="rtl"] .cv-contact-info { text-align: left; }
+        .cv-contact-info p { margin: 0 0 5px; }
+        .cv-profile-pic-container { width: 80px; height: 80px; margin-left: 20px; flex-shrink: 0; }
+        [dir="rtl"] .cv-profile-pic-container { margin-left: 0; margin-right: 20px; }
+        .cv-profile-pic { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--cv-accent); display: none; transition: border-color .3s; }
+        .cv-profile-pic.visible { display: block; }
+        .cv-section { margin-bottom: 20px; }
+        .cv-section-title { font-size: 1.3rem; font-weight: bold; color: var(--cv-accent); border-bottom: 2px solid var(--cv-accent); padding-bottom: 5px; margin-bottom: 15px; transition: color .3s, border-color .3s; }
+        .cv-item { margin-bottom: 15px; }
+        .cv-item-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .cv-item-title { font-size: 1.1rem; }
+        .cv-item-subtitle { font-size: 1rem; color: #555; }
+        .cv-item-date { font-size: 1rem; color: #555; }
+        .cv-item-description { list-style-position: inside; padding-inline-start: 20px; margin-top: 5px; }
+        [dir="rtl"] .cv-item-description { padding-inline-start: 0; padding-inline-end: 20px; }
+        .cv-skills-list, .cv-certs-list, .cv-languages-list { padding-inline-start: 20px; list-style-position: outside; }
+        [dir="rtl"] .cv-skills-list, [dir="rtl"] .cv-certs-list, [dir="rtl"] .cv-languages-list { padding-inline-start: 0; padding-inline-end: 20px; }
+        .cv-language-item { display: flex; justify-content: space-between; align-items: center; }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: flex-end; }
+        .star { cursor: pointer; font-size: 1.5rem; color: #ccc; }
+        .star:hover, .star:hover ~ .star, .star.selected, .star.selected ~ .star { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <header class="editor-header">
+        <h1 class="editor-title" data-key="editorTitle">CV Editor: Prime ATS</h1>
+        <div class="controls-group">
+            <button id="language-toggle" class="control-btn" data-key="toggleLang">العربية</button>
+            <button id="dark-mode-toggle" class="control-btn" data-key="toggleTheme">Dark Mode</button>
+            <button id="download-pdf" class="control-btn primary" data-key="downloadPDF">Download PDF</button>
+        </div>
+    </header>
+    <main class="editor-layout">
+        <aside class="editor-panel">
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="customization">Design Customization</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div class="form-group"><label data-key="accentColor">Accent Color</label><div id="color-picker" class="color-dots">
+                        <div class="color-dot" data-color="#2c3e50" style="background-color: #2c3e50;"></div><div class="color-dot" data-color="#2980b9" style="background-color: #2980b9;"></div><div class="color-dot active" data-color="#27ae60" style="background-color: #27ae60;"></div><div class="color-dot" data-color="#d35400" style="background-color: #d35400;"></div><div class="color-dot" data-color="#8e44ad" style="background-color: #8e44ad;"></div>
+                    </div></div>
+                </div>
+            </div>
+            <div id="personal-info-accordion" class="accordion-item open">
+                <div class="accordion-header"><span data-key="personalInfo">Personal Information</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div class="form-group"><label data-key="profilePic">Profile Picture (Optional)</label><div id="upload-wrapper"><span data-key="uploadPic">Click here to upload</span></div><input type="file" id="profile-pic-input" accept="image/*"></div>
+                    <div class="form-group"><label for="name" data-key="fullName">Full Name</label><input type="text" id="name" data-cv-target="preview-name"></div>
+                    <div class="form-group"><label for="jobTitle" data-key="jobTitle">Job Title</label><input type="text" id="jobTitle" data-cv-target="preview-jobTitle"></div>
+                    <div class="form-group"><label for="email" data-key="email">Email</label><input type="email" id="email" data-cv-target="preview-email"></div>
+                    <div class="form-group"><label for="phone" data-key="phone">Phone Number</label><div class="phone-group"><select id="country-code"></select><input type="tel" id="phone" placeholder="123-456-7890"></div></div>
+                    <div class="form-group"><label for="location" data-key="location">Location</label><input type="text" id="location" data-cv-target="preview-location"></div>
+                </div>
+            </div>
+            <div id="experience-accordion" class="accordion-item open">
+                <div class="accordion-header"><span data-key="experience">Work Experience</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div id="experience-form-list"></div>
+                    <button id="add-experience" class="add-btn" data-key="addExperience">+ Add Experience</button>
+                </div>
+            </div>
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="education">Education</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div id="education-form-list"></div>
+                    <button id="add-education" class="add-btn" data-key="addEducation">+ Add Education</button>
+                </div>
+            </div>
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="skills">Skills</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div id="skills-form-list"></div>
+                    <button id="add-skill" class="add-btn" data-key="addSkill">+ Add Skill</button>
+                </div>
+            </div>
+            <div class="accordion-item open">
+              <div class="accordion-header">
+                <span data-key="summary">Professional Summary</span><span class="arrow">▼</span>
+              </div>
+              <div class="accordion-content">
+                <div class="form-group">
+                  <label for="summary" data-key="summary">Professional Summary</label>
+                  <textarea id="summary" data-cv-target="preview-summary" rows="5"></textarea>
+                  <button class="ai-writer-btn" id="ai-summary-btn">
+                    <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293z"/><path d="M13.752 4.396l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
+                    <span data-key="aiWriter">Suggest with AI</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="languages">Languages</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div id="languages-form-list"></div>
+                    <button id="add-language" class="add-btn" data-key="addLanguage">+ Add Language</button>
+                </div>
+            </div>
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="certifications">Certifications</span><span class="arrow">▼</span></div>
+                <div class="accordion-content">
+                    <div id="certs-form-list"></div>
+                    <button id="add-cert" class="add-btn" data-key="addCert">+ Add Certification</button>
+                </div>
+            </div>
+        </aside>
+        <div class="preview-panel">
+            <div id="cv-preview-wrapper"><div id="cv-preview">
+                <header class="cv-header">
+                    <div class="cv-header-main">
+                        <h1 id="preview-name" class="cv-name" data-key-placeholder="fullNamePlaceholder">Your Full Name</h1>
+                        <p id="preview-jobTitle" class="cv-job-title" data-key-placeholder="jobTitlePlaceholder">Your Job Title</p>
+                    </div>
+                    <div class="cv-contact-info">
+                        <p id="preview-email" data-key-placeholder="emailPlaceholder">your@email.com</p>
+                        <p id="preview-phone" data-key-placeholder="phonePlaceholder">+1 123-456-7890</p>
+                        <p id="preview-location" data-key-placeholder="locationPlaceholder">City, Country</p>
+                    </div>
+                    <div class="cv-profile-pic-container"><img id="preview-profile-pic" alt="Profile Picture" class="cv-profile-pic"></div>
+                </header>
+                <section class="cv-section cv-experience"><h2 class="cv-section-title" data-key="experience">Work Experience</h2><div id="preview-experience-list"></div></section>
+                <section class="cv-section cv-education"><h2 class="cv-section-title" data-key="education">Education</h2><div id="preview-education-list"></div></section>
+                <section class="cv-section cv-skills"><h2 class="cv-section-title" data-key="skills">Skills</h2><ul id="preview-skills-list" class="cv-skills-list"></ul></section>
+                <section class="cv-section cv-summary"><h2 class="cv-section-title" data-key="summary">Professional Summary</h2><p id="preview-summary" data-key-placeholder="summaryPlaceholder">A brief professional summary highlighting your experience and key skills.</p></section>
+                <section class="cv-section cv-languages"><h2 class="cv-section-title" data-key="languages">Languages</h2><ul id="preview-languages-list" class="cv-languages-list"></ul></section>
+                <section class="cv-section cv-certs"><h2 class="cv-section-title" data-key="certifications">Certifications</h2><ul id="preview-certs-list" class="cv-certs-list"></ul></section>
+            </div></div>
+        </div>
+    </main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const translations = {
+            ar: {
+                title: "تخصيص قالب Prime ATS", editorTitle: "محرر السيرة الذاتية: Prime ATS", toggleLang: "English", toggleTheme: "الوضع الليلي", downloadPDF: "تحميل PDF", customization: "تخصيص التصميم", accentColor: "اللون الرئيسي",
+                personalInfo: "المعلومات الشخصية", profilePic: "الصورة الشخصية (اختياري)", uploadPic: "انقر هنا لرفع صورة", fullName: "الاسم الكامل", jobTitle: "المسمى الوظيفي", email: "البريد الإلكتروني", phone: "رقم الهاتف", location: "الموقع",
+                summary: "الملخص المهني", experience: "الخبرة العملية", addExperience: "+ إضافة خبرة", education: "التعليم", addEducation: "+ إضافة مؤهل علمي", skills: "المهارات", addSkill: "+ إضافة مهارة",
+                languages: "اللغات", addLanguage: "+ إضافة لغة", certifications: "الشهادات والدورات", addCert: "+ إضافة شهادة", aiWriter: "اقتراح بالذكاء الاصطناعي",
+                expTitle: "المسمى الوظيفي", company: "الشركة", expDates: "التواريخ", expDesc: "الوصف (كل نقطة في سطر)",
+                degree: "الشهادة/التخصص", university: "الجامعة/المؤسسة", eduDates: "التواريخ", eduDesc: "الوصف (مشاريع أو مواد بارزة)",
+                skillName: "المهارة", langName: "اللغة", langLevel: "المستوى", certName: "اسم الشهادة",
+                fullNamePlaceholder: "اسمك الكامل", jobTitlePlaceholder: "المسمى الوظيفي", emailPlaceholder: "email@example.com", phonePlaceholder: "+962 123-456-7890", locationPlaceholder: "المدينة، الدولة", summaryPlaceholder: "ملخص احترافي موجز يبرز خبراتك وأهم مهاراتك.",
+                expTitlePlaceholder: "مطور واجهات أمامية", companyPlaceholder: "اسم الشركة", expDatesPlaceholder: "2020 - الآن",
+                degreePlaceholder: "بكالوريوس في علوم الحاسوب", universityPlaceholder: "اسم الجامعة", eduDatesPlaceholder: "2016 - 2020",
+                phoneInputPlaceholder: "791234567",
+                aiSummarySuggestion: "خبير في [مجالك] لأكثر من [عدد] سنوات، متخصص في [مهارة 1] و[مهارة 2]. أسعى لتطبيق خبراتي في بيئة عمل ديناميكية لتحقيق النمو والنجاح المتبادل.",
+                aiDescSuggestion: "• تطوير وتنفيذ استراتيجيات [المجال] مما أدى إلى زيادة بنسبة [نسبة] في [مؤشر الأداء].\n• إدارة وتحليل [بيانات/مشاريع] لتحسين الكفاءة التشغيلية.\n• التعاون مع فرق متعددة لضمان تسليم المشاريع في الوقت المحدد.",
+                aiEduSuggestion: "• مشروع التخرج: [اسم المشروع]، حيث تم [وصف موجز للمشروع والنتيجة].\n• بحث أو ورقة عمل بعنوان: [عنوان البحث].\n• تحقيق معدل تراكمي [المعدل] مع مرتبة الشرف."
+            },
+            en: {
+                title: "Customize Prime ATS", editorTitle: "CV Editor: Prime ATS", toggleLang: "العربية", toggleTheme: "Dark Mode", downloadPDF: "Download PDF", customization: "Design Customization", accentColor: "Accent Color",
+                personalInfo: "Personal Information", profilePic: "Profile Picture (Optional)", uploadPic: "Click here to upload", fullName: "Full Name", jobTitle: "Job Title", email: "Email", phone: "Phone Number", location: "Location",
+                summary: "Professional Summary", experience: "Work Experience", addExperience: "+ Add Experience", education: "Education", addEducation: "+ Add Education", skills: "Skills", addSkill: "+ Add Skill",
+                languages: "Languages", addLanguage: "+ Add Language", certifications: "Certifications", addCert: "+ Add Certification", aiWriter: "Suggest with AI",
+                expTitle: "Job Title", company: "Company", expDates: "Dates", expDesc: "Description (one point per line)",
+                degree: "Degree/Major", university: "University/Institution", eduDates: "Dates", eduDesc: "Description (projects or notable coursework)",
+                skillName: "Skill", langName: "Language", langLevel: "Proficiency", certName: "Certificate Name",
+                fullNamePlaceholder: "Your Full Name", jobTitlePlaceholder: "Your Job Title", emailPlaceholder: "your@email.com", phonePlaceholder: "+1 123-456-7890", locationPlaceholder: "City, Country", summaryPlaceholder: "A brief professional summary highlighting your experience and key skills.",
+                expTitlePlaceholder: "Frontend Developer", companyPlaceholder: "Company Name", expDatesPlaceholder: "2020 - Present",
+                degreePlaceholder: "B.Sc. in Computer Science", universityPlaceholder: "University Name", eduDatesPlaceholder: "2016 - 2020",
+                phoneInputPlaceholder: "123-456-7890",
+                aiSummarySuggestion: "Experienced [Your Field] professional with over [Number] years of expertise in [Skill 1] and [Skill 2]. Seeking to leverage my skills in a dynamic work environment to drive mutual growth and success.",
+                aiDescSuggestion: "• Developed and executed [Field] strategies, resulting in a [Percentage]% increase in [KPI].\n• Managed and analyzed [data/projects] to improve operational efficiency.\n• Collaborated with cross-functional teams to ensure timely project delivery.",
+                aiEduSuggestion: "• Graduation Project: [Project Name], which involved [brief description and outcome].\n• Researched and authored a paper on [Topic].\n• Achieved a [GPA] GPA with honors."
+            }
+        };
+        const html = document.documentElement;
+
+        function init() {
+            setupEventListeners();
+            applyInitialSettings();
+            populateCountryCodes();
+            createDynamicItem('experience');
+            createDynamicItem('education');
+            createDynamicItem('skill');
+            createDynamicItem('language');
+            createDynamicItem('cert');
+        }
+
+        function applyInitialSettings() {
+            const lang = localStorage.getItem('language') || 'ar';
+            const theme = localStorage.getItem('theme') || 'light';
+            applyLanguage(lang);
+            applyTheme(theme);
+        }
+
+        function applyLanguage(lang) {
+            html.lang = lang;
+            html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            const langData = translations[lang];
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.dataset.key;
+                if (langData[key]) el.textContent = langData[key];
+            });
+            document.querySelectorAll('[data-key-placeholder]').forEach(el => {
+                const key = el.dataset.keyPlaceholder;
+                if (langData[key] && !el.dataset.hasContent) el.textContent = langData[key];
+            });
+            const phoneInput = document.getElementById('phone');
+            if(phoneInput) phoneInput.placeholder = langData.phoneInputPlaceholder;
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') html.classList.add('dark');
+            else html.classList.remove('dark');
+        }
+
+        function safeAddEventListener(selector, event, handler) {
+            const element = document.getElementById(selector);
+            if (element) {
+                element.addEventListener(event, handler);
+            } else {
+                console.error(`Error: Element with ID '${selector}' not found.`);
+            }
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => header.parentElement.classList.toggle('open'));
+            });
+
+            safeAddEventListener('language-toggle', 'click', () => {
+                const newLang = html.lang === 'ar' ? 'en' : 'ar';
+                localStorage.setItem('language', newLang);
+                applyLanguage(newLang);
+            });
+
+            safeAddEventListener('dark-mode-toggle', 'click', () => {
+                const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            safeAddEventListener('download-pdf', 'click', () => {
+                const cvElement = document.getElementById('cv-preview');
+                const nameInput = document.getElementById('name');
+                if (!cvElement || typeof html2pdf === 'undefined') {
+                    alert("حدث خطأ، لا يمكن تحميل الـ PDF الآن.");
+                    console.error("PDF generation failed: Element or library  not found.");
+                    return;
+                }
+                const name = nameInput && nameInput.value.trim() ? nameInput.value.trim().replace(/\s+/g, '_') : 'CV';
+                const filename = `${name}.pdf`;
+                const downloadButton = document.getElementById('download-pdf');
+                const originalText = downloadButton.textContent;
+                downloadButton.textContent = "جاري التحضير...";
+                downloadButton.disabled = true;
+                const opt = {
+                    margin: 10,
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                };
+                html2pdf().from(cvElement).set(opt).save().then(() => {
+                    downloadButton.textContent = originalText;
+                    downloadButton.disabled = false;
+                }).catch((err) => {
+                    console.error("PDF generation error:", err);
+                    downloadButton.textContent = originalText;
+                    downloadButton.disabled = false;
+                    alert("فشل إنشاء الملف، يرجى مراجعة الـ Console.");
+                });
+            });
+
+            safeAddEventListener('ai-summary-btn', 'click', suggestSummary);
+            safeAddEventListener('add-experience', 'click', () => createDynamicItem('experience'));
+            safeAddEventListener('add-education', 'click', () => createDynamicItem('education'));
+            safeAddEventListener('add-skill', 'click', () => createDynamicItem('skill'));
+            safeAddEventListener('add-language', 'click', () => createDynamicItem('language'));
+            safeAddEventListener('add-cert', 'click', () => createDynamicItem('cert'));
+
+            document.querySelectorAll('input[data-cv-target], textarea[data-cv-target]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const targetEl = document.getElementById(e.target.dataset.cvTarget);
+                    if (targetEl) {
+                        if (e.target.value) {
+                            targetEl.textContent = e.target.value;
+                            targetEl.dataset.hasContent = 'true';
+                        } else {
+                            delete targetEl.dataset.hasContent;
+                            applyLanguage(html.lang);
+                        }
+                    }
+                });
+            });
+
+            const uploadWrapper = document.getElementById('upload-wrapper');
+            const picInput = document.getElementById('profile-pic-input');
+            const previewPic = document.getElementById('preview-profile-pic');
+            if (uploadWrapper && picInput && previewPic) {
+                uploadWrapper.addEventListener('click', () => picInput.click());
+                picInput.addEventListener('change', e => {
+                    if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            previewPic.src = event.target.result;
+                            previewPic.classList.add('visible');
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+
+            const colorPicker = document.getElementById('color-picker');
+            if (colorPicker) {
+                colorPicker.addEventListener('click', e => {
+                    if (e.target.classList.contains('color-dot')) {
+                        const color = e.target.dataset.color;
+                        document.querySelector(':root').style.setProperty('--cv-accent', color);
+                        const currentActive = colorPicker.querySelector('.color-dot.active');
+                        if (currentActive) currentActive.classList.remove('active');
+                        e.target.classList.add('active');
+                    }
+                });
+            }
+
+            const phoneInput = document.getElementById('phone');
+            const countryCodeSelect = document.getElementById('country-code');
+            const updateFullPhone = () => {
+                const phoneTarget = document.getElementById('preview-phone');
+                if (phoneTarget && phoneInput && countryCodeSelect) {
+                    if (phoneInput.value) {
+                        phoneTarget.textContent = `${countryCodeSelect.value} ${phoneInput.value}`;
+                        phoneTarget.dataset.hasContent = 'true';
+                    } else {
+                        delete phoneTarget.dataset.hasContent;
+                        applyLanguage(html.lang);
+                    }
+                }
+            };
+            if (phoneInput) phoneInput.addEventListener('input', updateFullPhone);
+            if (countryCodeSelect) countryCodeSelect.addEventListener('change', updateFullPhone);
+        }
+
+        async function suggestSummary() {
+            const lang = document.documentElement.lang;
+            const skills = Array.from(document.querySelectorAll('#skills-form-list input[data-prop="title"]')).map(el => el.value.trim()).filter(Boolean);
+            const experience = Array.from(document.querySelectorAll('#experience-form-list .dynamic-item')).map(item => ({
+                title: (item.querySelector('input[data-prop="title"]')?.value || "").trim(),
+                company: (item.querySelector('input[data-prop="subtitle"]')?.value || "").trim(),
+                dates: (item.querySelector('input[data-prop="date"]')?.value || "").trim(),
+                bullets: (item.querySelector('textarea[data-prop="desc"]')?.value || "").split("\n").map(s => s.trim()).filter(Boolean)
+            })).filter(e => e.title || e.company || e.bullets.length);
+
+            if (skills.length === 0 && experience.length === 0) {
+                alert(lang === "ar" ? "يجب إضافة المهارات والخبرة أولاً قبل استخدام الاقتراح بالذكاء الاصطناعي." : "You must add skills and experience first before using AI suggestion.");
+                return;
+            }
+            const payload = { language: lang, skills, experience };
+            try {
+                const url = "https://shaimaa-hamdan.app.n8n.cloud/webhook/ai-summary";
+                const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload ) });
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const data = await res.json();
+                const summary = data?.summary ?? data?.json?.summary ?? data?.[0]?.summary ?? data?.[0]?.json?.summary ?? (lang === "ar" ? "لم يتم إرجاع ملخص." : "No summary returned.");
+                const summaryInput = document.getElementById("summary");
+                summaryInput.value = summary;
+                summaryInput.dispatchEvent(new Event("input", { bubbles: true }));
+            } catch (err) {
+                console.error("AI Summary Error:", err);
+                const summaryInput = document.getElementById("summary");
+                summaryInput.value = lang === "ar" ? "فشل توليد الملخص." : "Failed to generate summary.";
+            }
+        }
+
+        function createDynamicItem(type) {
+            const lang = html.lang;
+            const langData = translations[lang];
+            let formListId, previewListId;
+            if (type === 'skill' || type === 'cert' || type === 'language') {
+                formListId = `${type}s-form-list`;
+                previewListId = `preview-${type}s-list`;
+            } else {
+                formListId = `${type}-form-list`;
+                previewListId = `preview-${type}-list`;
+            }
+            const formList = document.getElementById(formListId);
+            const previewList = document.getElementById(previewListId);
+            if (!formList || !previewList) { console.error(`Cannot find form or preview list for '${type}'`); return; }
+            const itemId = `${type}-${Date.now()}`;
+            const formItem = document.createElement('div');
+            formItem.className = 'dynamic-item';
+            let previewHtml = '';
+            let previewTag = (type === 'skill' || type === 'cert' || type === 'language') ? 'li' : 'div';
+
+            switch (type) {
+                case 'experience': case 'education':
+                    const isExp = type === 'experience';
+                    formItem.innerHTML = `<button class="remove-btn">×</button><div style="flex-grow: 1;"><div class="form-group"><label>${isExp ? langData.expTitle : langData.degree}</label><input type="text" data-prop="title" placeholder="${isExp ? langData.expTitlePlaceholder : langData.degreePlaceholder}"></div><div class="form-group"><label>${isExp ? langData.company : langData.university}</label><input type="text" data-prop="subtitle" placeholder="${isExp ? langData.companyPlaceholder : langData.universityPlaceholder}"></div><div class="form-group"><label>${isExp ? langData.expDates : langData.eduDates}</label><input type="text" data-prop="date" placeholder="${isExp ? langData.expDatesPlaceholder : langData.eduDatesPlaceholder}"></div><div class="form-group"><label>${isExp ? langData.expDesc : langData.eduDesc}</label><textarea data-prop="desc" rows="3"></textarea></div></div>`;
+                    previewHtml = `<div class="cv-item-header"><div><h3 class="cv-item-title"></h3><p class="cv-item-subtitle"></p></div><span class="cv-item-date"></span></div><ul class="cv-item-description"></ul>`;
+                    break;
+                case 'skill': case 'cert':
+                    formItem.classList.add('dynamic-item-small');
+                    const nameKey = type === 'skill' ? 'skillName' : 'certName';
+                    formItem.innerHTML = `<div class="form-group"><label>${langData[nameKey]}</label><input type="text" data-prop="title"></div><button class="remove-btn">×</button>`;
+                    break;
+                case 'language':
+                    formItem.classList.add('dynamic-item-small');
+                    formItem.innerHTML = `<div class="form-group"><label>${langData.langName}</label><input type="text" data-prop="title"></div><div class="form-group"><label>${langData.langLevel}</label><div class="star-rating" data-prop="stars"><span class="star" data-value="5">☆</span><span class="star" data-value="4">☆</span><span class="star" data-value="3">☆</span><span class="star" data-value="2">☆</span><span class="star" data-value="1">☆</span></div></div><button class="remove-btn">×</button>`;
+                    previewHtml = `<div class="cv-language-item"><span class="cv-lang-name"></span><span class="cv-lang-stars"></span></div>`;
+                    break;
+            }
+
+            formList.appendChild(formItem);
+            const previewItem = document.createElement(previewTag);
+            previewItem.className = 'cv-item';
+            previewItem.id = `preview-${itemId}`;
+            previewItem.innerHTML = previewHtml;
+            previewItem.style.display = 'none';
+            previewList.appendChild(previewItem);
+
+            const updateFn = () => updatePreview(formItem, previewItem);
+            formItem.querySelectorAll('input, textarea').forEach(input => input.addEventListener('input', updateFn));
+
+            if (type === 'language') {
+                formItem.querySelector('.star-rating').addEventListener('click', e => {
+                    if (e.target.classList.contains('star')) {
+                        updateStars(e.currentTarget, e.target.dataset.value);
+                        updateFn();
+                    }
+                });
+            }
+
+            if (type === 'experience' || type === 'education') {
+                const aiBtn = formItem.querySelector('.ai-writer-btn');
+                if (aiBtn) {
+                    aiBtn.addEventListener('click', () => {
+                        const descTextarea = formItem.querySelector('textarea[data-prop="desc"]');
+                        const suggestionKey = type === 'education' ? 'aiEduSuggestion' : 'aiDescSuggestion';
+                        descTextarea.value = translations[html.lang][suggestionKey];
+                        descTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                }
+            }
+
+            formItem.querySelector('.remove-btn').addEventListener('click', () => {
+                formItem.remove();
+                previewItem.remove();
+            });
+
+            updatePreview(formItem, previewItem);
+        }
+
+        function updatePreview(formItem, previewItem) {
+            const data = {};
+            let hasContent = false;
+            formItem.querySelectorAll('[data-prop]').forEach(el => {
+                let value;
+                if (el.classList.contains('star-rating')) {
+                    const selected = el.querySelector('.star.selected');
+                    value = selected ? parseInt(selected.dataset.value, 10) : 0;
+                } else {
+                    value = el.value.trim();
+                }
+                data[el.dataset.prop] = value;
+                if (value) hasContent = true;
+            });
+            previewItem.style.display = hasContent ? '' : 'none';
+            if (!hasContent) return;
+            if (previewItem.tagName === 'LI') {
+                const langItem = previewItem.querySelector('.cv-language-item');
+                if (langItem) {
+                    langItem.querySelector('.cv-lang-name').textContent = data.title;
+                    langItem.querySelector('.cv-lang-stars').textContent = '★'.repeat(data.stars) + '☆'.repeat(5 - data.stars);
+                } else {
+                    previewItem.textContent = data.title;
+                }
+            } else {
+                previewItem.querySelector('.cv-item-title').textContent = data.title;
+                previewItem.querySelector('.cv-item-subtitle').textContent = data.subtitle;
+                previewItem.querySelector('.cv-item-date').textContent = data.date;
+                const descEl = previewItem.querySelector('.cv-item-description');
+                const points = (data.desc || '').split('\n').map(p => p.trim().replace(/^•\s*/, '')).filter(Boolean);
+                descEl.innerHTML = points.map(p => `<li>${p}</li>`).join('');
+            }
+        }
+        
+        function updateStars(container, rating) {
+            container.querySelectorAll('.star').forEach(star => {
+                star.classList.toggle('selected', star.dataset.value <= rating);
+            });
+        }
+
+        function populateCountryCodes() {
+            const select = document.getElementById('country-code');
+            if (!select) return;
+            const countryCodes = [
+                {"name":"Jordan","dial_code":"+962"},
+                {"name":"Saudi Arabia","dial_code":"+966"},
+                {"name":"United Arab Emirates","dial_code":"+971"},
+                {"name":"Egypt","dial_code":"+20"},
+                {"name":"United States","dial_code":"+1"}
+            ];
+            select.innerHTML = ''; 
+            countryCodes.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.dial_code;
+                option.textContent = `${country.name} (${country.dial_code})`;
+                select.appendChild(option);
+            });
+            select.value = "+962";
+        }
+
+        init();
+    });
+</script>
+</body></html>
+

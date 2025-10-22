@@ -1,0 +1,295 @@
+<html lang="en" dir="ltr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Template - Sirati</title>
+
+    <style id="main-styles">
+        /* --- نفس كود الـ CSS من الصفحة الرئيسية تماماً للحفاظ على التصميم --- */
+        :root {
+          --radius: 0.625rem;
+          --background: oklch(0.98 0.01 300);
+          --foreground: oklch(0.25 0.05 300);
+          --card: oklch(1 0 0);
+          --card-foreground: oklch(0.25 0.05 300);
+          --primary: oklch(0.55 0.15 300);
+          --primary-foreground: oklch(0.98 0.01 300);
+          --secondary: oklch(0.92 0.05 300);
+          --secondary-foreground: oklch(0.35 0.08 300);
+          --muted: oklch(0.94 0.03 300);
+          --muted-foreground: oklch(0.55 0.05 300);
+          --accent: oklch(0.65 0.12 320);
+          --accent-foreground: oklch(0.98 0.01 300);
+          --border: oklch(0.88 0.03 300);
+          --ring: oklch(0.55 0.15 300);
+        }
+        .dark {
+          --background: oklch(0.15 0.03 300);
+          --foreground: oklch(0.92 0.02 300);
+          --card: oklch(0.18 0.03 300);
+          --card-foreground: oklch(0.92 0.02 300);
+          --primary: oklch(0.65 0.15 300);
+          --primary-foreground: oklch(0.15 0.03 300);
+          --secondary: oklch(0.25 0.05 300);
+          --secondary-foreground: oklch(0.85 0.05 300);
+          --muted: oklch(0.22 0.04 300);
+          --muted-foreground: oklch(0.65 0.05 300);
+          --accent: oklch(0.75 0.12 320);
+          --accent-foreground: oklch(0.15 0.03 300);
+          --border: oklch(0.30 0.04 300);
+          --ring: oklch(0.65 0.15 300);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; border-color: var(--border); transition-property: color, background-color, border-color, transform, opacity, box-shadow; transition-duration: 0.2s; transition-timing-function: ease-in-out; }
+        html { line-height: 1.5; font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+        body { background-color: var(--background); color: var(--foreground); font-feature-settings: "rlig" 1, "calt" 1; }
+        .container { width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; padding: 2rem 1.5rem; }
+        .min-h-screen { min-height: 100vh; } .flex { display: flex; } .flex-col { flex-direction: column; } .items-center { align-items: center; } .justify-center { justify-content: center; } .relative { position: relative; } .absolute { position: absolute; } .inset-0 { top: 0; right: 0; bottom: 0; left: 0; } .overflow-hidden { overflow: hidden; } .pointer-events-none { pointer-events: none; } .z-10 { z-index: 10; } .top-6 { top: 1.5rem; } .right-6 { right: 1.5rem; } .gap-3 { gap: 0.75rem; } .text-center { text-align: center; }
+        .button-icon-style { display: inline-flex; align-items: center; justify-content: center; height: 2.5rem; width: 2.5rem; border-radius: 9999px; border: 1px solid var(--border); background-color: var(--card); color: var(--card-foreground); transition: all 0.2s ease-in-out; cursor: pointer; }
+        .button-icon-style:hover { background-color: var(--muted); }
+        .floating-particles { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
+        .particle { position: absolute; opacity: 0.35; filter: blur(0.5px); animation: float-particle linear infinite; }
+        .dark .particle { opacity: 0.25; filter: blur(1px); }
+        .particle-0 { width: 20px; height: 20px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='2'%3E%3Cpath d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E" ) no-repeat center; background-size: contain; }
+        .particle-1 { width: 30px; height: 30px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='16' y1='13' x2='8' y2='13'/%3E%3Cline x1='16' y1='17' x2='8' y2='17'/%3E%3Cpolyline points='10 9 9 9 8 9'/%3E%3C/svg%3E" ) no-repeat center; background-size: contain; }
+        .particle-2 { width: 25px; height: 25px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c084fc' stroke-width='2'%3E%3Cpath d='m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48'/%3E%3C/svg%3E" ) no-repeat center; background-size: contain; }
+        @keyframes float-particle { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-100vh) rotate(360deg); } }
+        
+        /* --- Template Card Styles --- */
+        .page-header { margin-bottom: 3rem; }
+        .page-title { font-size: 2.25rem; font-weight: 700; color: var(--foreground); }
+        [dir="rtl"] .page-title { font-family: 'Cairo', sans-serif; }
+        .page-subtitle { font-size: 1.125rem; color: var(--muted-foreground); margin-top: 0.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .template-card { background-color: var(--card); border: 1px solid var(--border); border-radius: 1rem; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .template-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px -10px oklch(0.55 0.15 300 / 0.2); }
+        .template-image-wrapper { width: 100%; height: 400px; overflow: hidden; background-color: var(--muted); }
+        .template-image { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+        .template-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .template-name { font-size: 1.5rem; font-weight: 600; color: var(--foreground); }
+        .template-description { font-size: 1rem; color: var(--muted-foreground); margin-top: 0.5rem; flex-grow: 1; }
+        .template-features { list-style: none; margin-top: 1.5rem; padding: 0; }
+        .template-features li { display: flex; align-items: center; gap: 0.75rem; color: var(--foreground); margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .template-features svg { color: var(--primary); width: 1rem; height: 1rem; flex-shrink: 0; }
+        .template-button { display: block; background-color: var(--primary); color: var(--primary-foreground); text-align: center; padding: 0.75rem 1.5rem; border-radius: calc(var(--radius) - 4px); font-weight: 600; text-decoration: none; margin-top: 1.5rem; transition: background-color 0.2s ease; }
+        .template-button:hover { background-color: oklch(0.6 0.15 300); }
+        .dark .template-button:hover { background-color: oklch(0.7 0.15 300); }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="floating-particles" id="floating-particles"></div>
+
+    <div class="absolute top-6 right-6 flex gap-3 z-10">
+        <button id="dark-mode-toggle" class="button-icon-style">
+            <svg id="theme-icon" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </button>
+        <button id="language-toggle" class="button-icon-style">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"></path><path d="m11 8 6 6"></path><path d="M2 19h10"></path><path d="M10 19l-1.9-7.3a1 1 0 0 0-.9-0.7c-.3 0-.6 0.1-.8 0.3L2 19"></path><path d="M22 19h-6"></path><path d="m18 19 1.9-7.3a1 1 0 0 0 .9-0.7c.3 0 .6 0.1.8 0.3l1.9 7.3"></path></svg>
+        </button>
+    </div>
+
+    <main class="container min-h-screen flex flex-col justify-center">
+        <header class="page-header text-center">
+            <h1 class="page-title" data-key="pageTitle">Choose Your Perfect Template</h1>
+            <p class="page-subtitle" data-key="pageSubtitle">Start your resume with a professional design. All templates are ATS-friendly.</p>
+        </header>
+
+        <div class="templates-grid">
+            <!-- Template Card 1: Prime ATS -->
+            <div class="template-card">
+                <div class="template-image-wrapper">
+                    <!-- تم استخدام رابط مباشر للصورة -->
+                    <img src="https://i.imgur.com/n2oEoSq.png" alt="Prime ATS Template Preview" class="template-image">
+                </div>
+                <div class="template-content">
+                    <h2 class="template-name" data-key="prime_name">Prime ATS</h2>
+                    <p class="template-description" data-key="prime_desc">A professional and minimalist resume optimized for maximum ATS compatibility and readability.</p>
+                    <ul class="template-features">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="prime_f1">ATS Friendly</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="prime_f2">Modern Design</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="prime_f3">Supports Photo</span></li>
+                    </ul>
+                    <a href="create-prime.html" class="template-button" data-key="customizeButton">Customize This Template</a>
+                </div>
+            </div>
+
+            <!-- Template Card 2: Classic -->
+            <div class="template-card">
+                <div class="template-image-wrapper">
+                    <!-- تم تصحيح الرابط وإضافة رابط مباشر للصورة -->
+                    <img src="https://i.imgur.com/MOl5WqK.png" alt="Classic Template Preview" class="template-image">
+                </div>
+                <div class="template-content">
+                    <h2 class="template-name" data-key="classic_name">Classic</h2>
+                    <p class="template-description" data-key="classic_desc">A classic, organized, and structured template to powerfully present your career history.</p>
+                    <ul class="template-features">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="classic_f1">Simple Design</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="classic_f2">Easy to Read</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="classic_f3">Suitable for All Fields</span></li>
+                    </ul>
+                    <a href="create-classic.html" class="template-button" data-key="customizeButton">Customize This Template</a>
+                </div>
+            </div>
+      <!-- Template Card 4: Traditional -->
+            <div class="template-card">
+                <div class="template-image-wrapper">
+                    <!-- تم استخدام رابط مباشر للصورة -->
+                    <img src="https://i.imgur.com/4MNRvnm.png" alt="Traditional Template Preview" class="template-image">
+                </div>
+                <div class="template-content">
+                    <h2 class="template-name" data-key="traditional_name">Traditional</h2>
+                    <p class="template-description" data-key="traditional_desc">A full-page traditional template with customizable sections suitable for experienced professionals.</p>
+                    <ul class="template-features">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="traditional_f1">Traditional Design</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="traditional_f2">Flexible Customization</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="traditional_f3">Ideal for Extensive Experience</span></li>
+                    </ul>
+                    <a href="o.html" class="template-button" data-key="customizeButton">Customize This Template</a>
+                </div>
+            </div>
+              <!-- Template Card 3: Extra Details -->
+            <div class="template-card">
+                <div class="template-image-wrapper">
+                     <!-- تم استخدام رابط مباشر للصورة -->
+                    <img src="https://i.imgur.com/UIJtA4J.png" alt="Extra Details Template Preview" class="template-image">
+                </div>
+                <div class="template-content">
+                    <h2 class="template-name" data-key="extra_details_name">Extra Details</h2>
+                    <p class="template-description" data-key="extra_details_desc">A detailed template focusing on showcasing all aspects of your experiences and achievements precisely.</p>
+                    <ul class="template-features">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="extra_details_f1">Comprehensive Details</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="extra_details_f2">Additional Sections</span></li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span data-key="extra_details_f3">Flexible Design</span></li>
+                    </ul>
+                    <a href="extra.html" class="template-button" data-key="customizeButton">Customize This Template</a>
+                </div>
+            </div>
+        </div>
+          
+
+      
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', ( ) => {
+            const translations = {
+                ar: {
+                    pageTitle: "اختر القالب المثالي لك",
+                    pageSubtitle: "ابدأ سيرتك الذاتية باختيار تصميم احترافي. جميع القوالب متوافقة مع أنظمة التتبع (ATS).",
+                    prime_name: "Prime ATS",
+                    prime_desc: "سيرة ذاتية احترافية ومبسطة محسّنة لتحقيق أقصى توافق مع ATS وسهولة القراءة.",
+                    prime_f1: "متوافق مع ATS",
+                    prime_f2: "تصميم عصري",
+                    prime_f3: "يدعم الصورة الشخصية",
+                    classic_name: "Classic",
+                    classic_desc: "قالب كلاسيكي منظم ومهيكل لعرض تاريخك المهني بشكل قوي.",
+                    classic_f1: "تصميم بسيط",
+                    classic_f2: "سهل القراءة",
+                    classic_f3: "مناسب لجميع المجالات",
+                    traditional_name: "Traditional",
+                    traditional_desc: "قالب تقليدي كامل الصفحة مع أقسام قابلة للتخصيص ليناسب أصحاب الخبرات الطويلة.",
+                    traditional_f1: "تصميم تقليدي",
+                    traditional_f2: "مرونة في التخصيص",
+                    traditional_f3: "مثالي للخبرات الطويلة",
+                    extra_details_name: "Extra Details",
+                    extra_details_desc: "قالب مفصل يركز على عرض جميع جوانب خبراتك وإنجازاتك بدقة.",
+                    extra_details_f1: "تفاصيل شاملة",
+                    extra_details_f2: "أقسام إضافية",
+                    extra_details_f3: "تصميم مرن",
+                    customizeButton: "تخصيص هذا القالب",
+                },
+                en: {
+                    pageTitle: "Choose Your Perfect Template",
+                    pageSubtitle: "Start your resume with a professional design. All templates are ATS-friendly.",
+                    prime_name: "Prime ATS",
+                    prime_desc: "A professional and minimalist resume optimized for maximum ATS compatibility and readability.",
+                    prime_f1: "ATS Friendly",
+                    prime_f2: "Modern Design",
+                    prime_f3: "Supports Photo",
+                    classic_name: "Classic",
+                    classic_desc: "A classic, organized, and structured template to powerfully present your career history.",
+                    classic_f1: "Simple Design",
+                    classic_f2: "Easy to Read",
+                    classic_f3: "Suitable for All Fields",
+                    traditional_name: "Traditional",
+                    traditional_desc: "A full-page traditional template with customizable sections suitable for experienced professionals.",
+                    traditional_f1: "Traditional Design",
+                    traditional_f2: "Flexible Customization",
+                    traditional_f3: "Ideal for Extensive Experience",
+                    extra_details_name: "Extra Details",
+                    extra_details_desc: "A detailed template focusing on showcasing all aspects of your experiences and achievements precisely.",
+                    extra_details_f1: "Comprehensive Details",
+                    extra_details_f2: "Additional Sections",
+                    extra_details_f3: "Flexible Design",
+                    customizeButton: "Customize This Template",
+                }
+            };
+
+            const html = document.documentElement;
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const languageToggle = document.getElementById('language-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            const applyLanguage = (lang) => {
+                html.lang = lang;
+                html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+                document.querySelectorAll('[data-key]').forEach(el => {
+                    const key = el.dataset.key;
+                    if (translations[lang][key]) {
+                        el.textContent = translations[lang][key];
+                    }
+                });
+                document.title = lang === 'ar' ? 'اختر قالبك - سيرتي' : 'Choose Template - Sirati';
+            };
+
+            const applyTheme = (theme) => {
+                const sunIcon = `<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.9 4.9 1.4 1.4"></path><path d="m17.7 17.7 1.4 1.4"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m4.9 19.1 1.4-1.4"></path><path d="m17.7 6.3 1.4-1.4"></path>`;
+                const moonIcon = `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+                if (theme === 'dark') {
+                    html.classList.add('dark');
+                    themeIcon.innerHTML = sunIcon;
+                } else {
+                    html.classList.remove('dark');
+                    themeIcon.innerHTML = moonIcon;
+                }
+            };
+
+            darkModeToggle.addEventListener('click', () => {
+                const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            languageToggle.addEventListener('click', () => {
+                const newLang = html.lang === 'ar' ? 'en' : 'ar';
+                localStorage.setItem('language', newLang);
+                applyLanguage(newLang);
+            });
+
+            // Initial Load
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const savedLang = localStorage.getItem('language') || 'ar';
+            applyTheme(savedTheme);
+            applyLanguage(savedLang);
+
+            // Particle generation
+            const particlesContainer = document.getElementById('floating-particles');
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                const type = i % 3;
+                particle.className = `particle particle-${type}`;
+                Object.assign(particle.style, {
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${Math.random() * 5}s`,
+                    animationDuration: `${Math.random() * 15 + 20}s`
+                });
+                particlesContainer.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
