@@ -1,15 +1,14 @@
-<html lang="en" dir="ltr" class="dark" style="--cv-accent: #27ae60;">
-<head>
+<html lang="ar" dir="rtl" class="dark" style="--cv-accent: #27ae60;"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="title">Customize Prime ATS</title>
+    <title data-key="title">تخصيص قالب Prime ATS</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap" rel="stylesheet">
     
     <style>
-        /* ✅✅✅  FIX: Replaced oklch( ) with standard hex/rgb colors for PDF compatibility ✅✅✅ */
+        /* --- Theme Variables Integration --- */
         :root {
           --radius: 0.625rem;
           --background: #fcfbff;
@@ -43,7 +42,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-family: 'Cairo', ui-sans-serif, system-ui, sans-serif; line-height: 1.5; }
-        body { background-color: var(--background); color: var(--foreground); }
+        body { background-color: var(--background ); color: var(--foreground); }
         .editor-layout { display: flex; height: calc(100vh - 65px); }
         .editor-panel { width: 480px; padding: 1.5rem; background-color: var(--card); border-right: 1px solid var(--border); overflow-y: auto; order: 1; }
         .preview-panel { flex-grow: 1; padding: 2rem; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; order: 2; }
@@ -116,82 +115,92 @@
 </head>
 <body>
     <header class="editor-header">
-        <h1 class="editor-title" data-key="editorTitle">CV Editor: Prime ATS</h1>
+        <h1 class="editor-title" data-key="editorTitle">محرر السيرة الذاتية: Prime ATS</h1>
         <div class="controls-group">
-            <button id="language-toggle" class="control-btn" data-key="toggleLang">العربية</button>
-            <button id="dark-mode-toggle" class="control-btn" data-key="toggleTheme">Dark Mode</button>
-            <button id="download-pdf" class="control-btn primary" data-key="downloadPDF">Download PDF</button>
+            <button id="language-toggle" class="control-btn" data-key="toggleLang">English</button>
+            <button id="dark-mode-toggle" class="control-btn" data-key="toggleTheme">الوضع الليلي</button>
+            <button id="download-pdf" class="control-btn primary" data-key="downloadPDF">تحميل PDF</button>
         </div>
     </header>
     <main class="editor-layout">
         <aside class="editor-panel">
             <div class="accordion-item open">
-                <div class="accordion-header"><span data-key="customization">Design Customization</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="customization">تخصيص التصميم</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
-                    <div class="form-group"><label data-key="accentColor">Accent Color</label><div id="color-picker" class="color-dots">
+                    <div class="form-group"><label data-key="accentColor">اللون الرئيسي</label><div id="color-picker" class="color-dots">
                         <div class="color-dot" data-color="#2c3e50" style="background-color: #2c3e50;"></div><div class="color-dot" data-color="#2980b9" style="background-color: #2980b9;"></div><div class="color-dot active" data-color="#27ae60" style="background-color: #27ae60;"></div><div class="color-dot" data-color="#d35400" style="background-color: #d35400;"></div><div class="color-dot" data-color="#8e44ad" style="background-color: #8e44ad;"></div>
                     </div></div>
                 </div>
             </div>
             <div id="personal-info-accordion" class="accordion-item open">
-                <div class="accordion-header"><span data-key="personalInfo">Personal Information</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="personalInfo">المعلومات الشخصية</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
-                    <div class="form-group"><label data-key="profilePic">Profile Picture (Optional)</label><div id="upload-wrapper"><span data-key="uploadPic">Click here to upload</span></div><input type="file" id="profile-pic-input" accept="image/*"></div>
-                    <div class="form-group"><label for="name" data-key="fullName">Full Name</label><input type="text" id="name" data-cv-target="preview-name"></div>
-                    <div class="form-group"><label for="jobTitle" data-key="jobTitle">Job Title</label><input type="text" id="jobTitle" data-cv-target="preview-jobTitle"></div>
-                    <div class="form-group"><label for="email" data-key="email">Email</label><input type="email" id="email" data-cv-target="preview-email"></div>
-                    <div class="form-group"><label for="phone" data-key="phone">Phone Number</label><div class="phone-group"><select id="country-code"></select><input type="tel" id="phone" placeholder="123-456-7890"></div></div>
-                    <div class="form-group"><label for="location" data-key="location">Location</label><input type="text" id="location" data-cv-target="preview-location"></div>
+                    <div class="form-group"><label data-key="profilePic">الصورة الشخصية (اختياري)</label><div id="upload-wrapper"><span data-key="uploadPic">انقر هنا لرفع صورة</span></div><input type="file" id="profile-pic-input" accept="image/*"></div>
+                    <div class="form-group"><label for="name" data-key="fullName">الاسم الكامل</label><input type="text" id="name" data-cv-target="preview-name"></div>
+                    <div class="form-group"><label for="jobTitle" data-key="jobTitle">المسمى الوظيفي</label><input type="text" id="jobTitle" data-cv-target="preview-jobTitle"></div>
+                    <div class="form-group"><label for="email" data-key="email">البريد الإلكتروني</label><input type="email" id="email" data-cv-target="preview-email"></div>
+                    <div class="form-group"><label for="phone" data-key="phone">رقم الهاتف</label><div class="phone-group"><select id="country-code"></select><input type="tel" id="phone" placeholder="791234567"></div></div>
+                    <div class="form-group"><label for="location" data-key="location">الموقع</label><input type="text" id="location" data-cv-target="preview-location"></div>
                 </div>
             </div>
             <div id="experience-accordion" class="accordion-item open">
-                <div class="accordion-header"><span data-key="experience">Work Experience</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="experience">الخبرة العملية</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
                     <div id="experience-form-list"></div>
-                    <button id="add-experience" class="add-btn" data-key="addExperience">+ Add Experience</button>
+                    <button id="add-experience" class="add-btn" data-key="addExperience">+ إضافة خبرة</button>
                 </div>
             </div>
             <div class="accordion-item open">
-                <div class="accordion-header"><span data-key="education">Education</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="education">التعليم</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
                     <div id="education-form-list"></div>
-                    <button id="add-education" class="add-btn" data-key="addEducation">+ Add Education</button>
+                    <button id="add-education" class="add-btn" data-key="addEducation">+ إضافة مؤهل علمي</button>
                 </div>
             </div>
             <div class="accordion-item open">
-                <div class="accordion-header"><span data-key="skills">Skills</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="skills">المهارات</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
                     <div id="skills-form-list"></div>
-                    <button id="add-skill" class="add-btn" data-key="addSkill">+ Add Skill</button>
+                    <button id="add-skill" class="add-btn" data-key="addSkill">+ إضافة مهارة</button>
                 </div>
             </div>
             <div class="accordion-item open">
               <div class="accordion-header">
-                <span data-key="summary">Professional Summary</span><span class="arrow">▼</span>
+                <span data-key="summary">الملخص المهني</span><span class="arrow">▼</span>
               </div>
               <div class="accordion-content">
                 <div class="form-group">
-                  <label for="summary" data-key="summary">Professional Summary</label>
+                  <label for="summary" data-key="summary">الملخص المهني</label>
                   <textarea id="summary" data-cv-target="preview-summary" rows="5"></textarea>
                   <button class="ai-writer-btn" id="ai-summary-btn">
-                    <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293z"/><path d="M13.752 4.396l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
-                    <span data-key="aiWriter">Suggest with AI</span>
+                    <svg fill="currentColor" viewBox="0 0 16 16" height="1em" width="1em"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293z"></path><path d="M13.752 4.396l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path></svg>
+                    <span data-key="aiWriter">اقتراح بالذكاء الاصطناعي</span>
                   </button>
                 </div>
               </div>
             </div>
             <div class="accordion-item open">
-                <div class="accordion-header"><span data-key="languages">Languages</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="languages">اللغات</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
                     <div id="languages-form-list"></div>
-                    <button id="add-language" class="add-btn" data-key="addLanguage">+ Add Language</button>
+                    <button id="add-language" class="add-btn" data-key="addLanguage">+ إضافة لغة</button>
                 </div>
             </div>
             <div class="accordion-item open">
-                <div class="accordion-header"><span data-key="certifications">Certifications</span><span class="arrow">▼</span></div>
+                <div class="accordion-header"><span data-key="certifications">الشهادات والدورات</span><span class="arrow">▼</span></div>
                 <div class="accordion-content">
                     <div id="certs-form-list"></div>
-                    <button id="add-cert" class="add-btn" data-key="addCert">+ Add Certification</button>
+                    <button id="add-cert" class="add-btn" data-key="addCert">+ إضافة شهادة</button>
+                </div>
+            </div>
+            <!-- ✅✅✅ MODIFIED: Final Actions Section moved to the bottom ✅✅✅ -->
+            <div class="accordion-item open">
+                <div class="accordion-header"><span data-key="finalActions">الإجراءات النهائية</span></div>
+                <div class="accordion-content" style="display: block;">
+                    <div class="controls-group" style="flex-direction: column; gap: 1rem;">
+                        <button id="download-pdf-bottom" class="control-btn primary" data-key="downloadPDF" style="width: 100%;">تحميل PDF</button>
+                        <button id="send-hr-btn" class="control-btn" data-key="sendToHR" style="width: 100%; background-color: #003049; color: white;">إرسال لإدارة الموارد البشرية</button>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -199,22 +208,22 @@
             <div id="cv-preview-wrapper"><div id="cv-preview">
                 <header class="cv-header">
                     <div class="cv-header-main">
-                        <h1 id="preview-name" class="cv-name" data-key-placeholder="fullNamePlaceholder">Your Full Name</h1>
-                        <p id="preview-jobTitle" class="cv-job-title" data-key-placeholder="jobTitlePlaceholder">Your Job Title</p>
+                        <h1 id="preview-name" class="cv-name" data-key-placeholder="fullNamePlaceholder">اسمك الكامل</h1>
+                        <p id="preview-jobTitle" class="cv-job-title" data-key-placeholder="jobTitlePlaceholder">المسمى الوظيفي</p>
                     </div>
                     <div class="cv-contact-info">
-                        <p id="preview-email" data-key-placeholder="emailPlaceholder">your@email.com</p>
-                        <p id="preview-phone" data-key-placeholder="phonePlaceholder">+1 123-456-7890</p>
-                        <p id="preview-location" data-key-placeholder="locationPlaceholder">City, Country</p>
+                        <p id="preview-email" data-key-placeholder="emailPlaceholder">email@example.com</p>
+                        <p id="preview-phone" data-key-placeholder="phonePlaceholder">+962 123-456-7890</p>
+                        <p id="preview-location" data-key-placeholder="locationPlaceholder">المدينة، الدولة</p>
                     </div>
                     <div class="cv-profile-pic-container"><img id="preview-profile-pic" alt="Profile Picture" class="cv-profile-pic"></div>
                 </header>
-                <section class="cv-section cv-experience"><h2 class="cv-section-title" data-key="experience">Work Experience</h2><div id="preview-experience-list"></div></section>
-                <section class="cv-section cv-education"><h2 class="cv-section-title" data-key="education">Education</h2><div id="preview-education-list"></div></section>
-                <section class="cv-section cv-skills"><h2 class="cv-section-title" data-key="skills">Skills</h2><ul id="preview-skills-list" class="cv-skills-list"></ul></section>
-                <section class="cv-section cv-summary"><h2 class="cv-section-title" data-key="summary">Professional Summary</h2><p id="preview-summary" data-key-placeholder="summaryPlaceholder">A brief professional summary highlighting your experience and key skills.</p></section>
-                <section class="cv-section cv-languages"><h2 class="cv-section-title" data-key="languages">Languages</h2><ul id="preview-languages-list" class="cv-languages-list"></ul></section>
-                <section class="cv-section cv-certs"><h2 class="cv-section-title" data-key="certifications">Certifications</h2><ul id="preview-certs-list" class="cv-certs-list"></ul></section>
+                <section class="cv-section cv-summary"><h2 class="cv-section-title" data-key="summary">الملخص المهني</h2><p id="preview-summary" data-key-placeholder="summaryPlaceholder">ملخص احترافي موجز يبرز خبراتك وأهم مهاراتك.</p></section>
+                <section class="cv-section cv-experience"><h2 class="cv-section-title" data-key="experience">الخبرة العملية</h2><div id="preview-experience-list"></div></section>
+                <section class="cv-section cv-education"><h2 class="cv-section-title" data-key="education">التعليم</h2><div id="preview-education-list"></div></section>
+                <section class="cv-section cv-skills"><h2 class="cv-section-title" data-key="skills">المهارات</h2><ul id="preview-skills-list" class="cv-skills-list"></ul></section>
+                <section class="cv-section cv-languages"><h2 class="cv-section-title" data-key="languages">اللغات</h2><ul id="preview-languages-list" class="cv-languages-list"></ul></section>
+                <section class="cv-section cv-certs"><h2 class="cv-section-title" data-key="certifications">الشهادات والدورات</h2><ul id="preview-certs-list" class="cv-certs-list"></ul></section>
             </div></div>
         </div>
     </main>
@@ -235,7 +244,10 @@
                 phoneInputPlaceholder: "791234567",
                 aiSummarySuggestion: "خبير في [مجالك] لأكثر من [عدد] سنوات، متخصص في [مهارة 1] و[مهارة 2]. أسعى لتطبيق خبراتي في بيئة عمل ديناميكية لتحقيق النمو والنجاح المتبادل.",
                 aiDescSuggestion: "• تطوير وتنفيذ استراتيجيات [المجال] مما أدى إلى زيادة بنسبة [نسبة] في [مؤشر الأداء].\n• إدارة وتحليل [بيانات/مشاريع] لتحسين الكفاءة التشغيلية.\n• التعاون مع فرق متعددة لضمان تسليم المشاريع في الوقت المحدد.",
-                aiEduSuggestion: "• مشروع التخرج: [اسم المشروع]، حيث تم [وصف موجز للمشروع والنتيجة].\n• بحث أو ورقة عمل بعنوان: [عنوان البحث].\n• تحقيق معدل تراكمي [المعدل] مع مرتبة الشرف."
+                aiEduSuggestion: "• مشروع التخرج: [اسم المشروع]، حيث تم [وصف موجز للمشروع والنتيجة].\n• بحث أو ورقة عمل بعنوان: [عنوان البحث].\n• تحقيق معدل تراكمي [المعدل] مع مرتبة الشرف.",
+                finalActions: "الإجراءات النهائية",
+                sendToHR: "إرسال لإدارة الموارد البشرية",
+                sendSuccessMessage: "تم إرسال بياناتك بنجاح. يرجى مراجعة بريدك الإلكتروني ({email}) للحصول على التحديثات من الموارد البشرية."
             },
             en: {
                 title: "Customize Prime ATS", editorTitle: "CV Editor: Prime ATS", toggleLang: "العربية", toggleTheme: "Dark Mode", downloadPDF: "Download PDF", customization: "Design Customization", accentColor: "Accent Color",
@@ -251,7 +263,10 @@
                 phoneInputPlaceholder: "123-456-7890",
                 aiSummarySuggestion: "Experienced [Your Field] professional with over [Number] years of expertise in [Skill 1] and [Skill 2]. Seeking to leverage my skills in a dynamic work environment to drive mutual growth and success.",
                 aiDescSuggestion: "• Developed and executed [Field] strategies, resulting in a [Percentage]% increase in [KPI].\n• Managed and analyzed [data/projects] to improve operational efficiency.\n• Collaborated with cross-functional teams to ensure timely project delivery.",
-                aiEduSuggestion: "• Graduation Project: [Project Name], which involved [brief description and outcome].\n• Researched and authored a paper on [Topic].\n• Achieved a [GPA] GPA with honors."
+                aiEduSuggestion: "• Graduation Project: [Project Name], which involved [brief description and outcome].\n• Researched and authored a paper on [Topic].\n• Achieved a [GPA] GPA with honors.",
+                finalActions: "Final Actions",
+                sendToHR: "Send to HR",
+                sendSuccessMessage: "Your data has been sent successfully. Please check your email ({email}) for updates from HR."
             }
         };
         const html = document.documentElement;
@@ -303,6 +318,84 @@
                 console.error(`Error: Element with ID '${selector}' not found.`);
             }
         }
+        
+        async function sendToHR() {
+            const lang = html.lang;
+            const t = translations[lang];
+            
+            
+            const email = document.getElementById('email').value;
+            const jobTitle = document.getElementById('jobTitle').value;
+
+            if (!email || !jobTitle) {
+                alert(lang === 'ar' ? 'الرجاء إدخال البريد الإلكتروني والمسمى الوظيفي أولاً قبل الإرسال.' : 'Please enter your email and job title before sending.');
+                return;
+            }
+
+            const webhookURL = "https://shaimaa-hamdan.app.n8n.cloud/webhook/930f2b6a-f068-4c8d-9ed5-15bf7bcfbd76";
+            
+            const getDynamicData = (type ) => {
+                const listId = `${type === 'cert' || type === 'skill' || type === 'language' ? type + 's' : type}-form-list`;
+                return Array.from(document.querySelectorAll(`#${listId} .dynamic-item`)).map(item => {
+                    const data = {};
+                    item.querySelectorAll('[data-prop]').forEach(el => {
+                        let value;
+                        if (el.classList.contains('star-rating')) {
+                            const selected = el.querySelector('.star.selected');
+                            value = selected ? parseInt(selected.dataset.value, 10) : 0;
+                        } else {
+                            value = el.value.trim();
+                        }
+                        data[el.dataset.prop] = value;
+                    });
+                    return data;
+                });
+            };
+
+            const payload = {
+                language: lang,
+                candidate: {
+                    name: (document.getElementById('name').value || '').trim(),
+                    email: email.trim(),
+                    jobTitle: jobTitle.trim(),
+                    phone: `${document.getElementById('country-code').value} ${document.getElementById('phone').value}`.trim(),
+                    location: (document.getElementById('location').value || '').trim(),
+                },
+                cv: {
+                    summary: (document.getElementById('summary').value || '').trim(),
+                    experience: getDynamicData('experience').map(e => ({...e, bullets: (e.desc || '').split('\n').filter(Boolean)})),
+                    education: getDynamicData('education').map(e => ({...e, bullets: (e.desc || '').split('\n').filter(Boolean)})),
+                    skills: getDynamicData('skill').map(s => s.title).filter(Boolean),
+                    languages: getDynamicData('language'),
+                    certifications: getDynamicData('cert').map(c => c.title).filter(Boolean)
+                }
+            };
+
+            const sendButton = document.getElementById('send-hr-btn');
+            const originalText = sendButton.innerHTML;
+            sendButton.innerHTML = 'جاري الإرسال...';
+            sendButton.disabled = true;
+
+            try {
+                const res = await fetch(webhookURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                await res.json().catch(() => ({}));
+                
+                const successMessage = t.sendSuccessMessage.replace('{email}', email);
+                alert(successMessage);
+
+            } catch (err) {
+                console.error("Send to HR failed:", err);
+                alert(lang === 'ar' ? 'فشل إرسال البيانات. يرجى المحاولة مرة أخرى.' : 'Failed to send data. Please try again.');
+            } finally {
+                sendButton.innerHTML = originalText;
+                sendButton.disabled = false;
+            }
+        }
 
         function setupEventListeners() {
             document.querySelectorAll('.accordion-header').forEach(header => {
@@ -321,19 +414,19 @@
                 applyTheme(newTheme);
             });
 
-            safeAddEventListener('download-pdf', 'click', () => {
+            const downloadPdfHandler = () => {
                 const cvElement = document.getElementById('cv-preview');
                 const nameInput = document.getElementById('name');
                 if (!cvElement || typeof html2pdf === 'undefined') {
                     alert("حدث خطأ، لا يمكن تحميل الـ PDF الآن.");
-                    console.error("PDF generation failed: Element or library  not found.");
+                    console.error("PDF generation failed: Element or library not found.");
                     return;
                 }
                 const name = nameInput && nameInput.value.trim() ? nameInput.value.trim().replace(/\s+/g, '_') : 'CV';
                 const filename = `${name}.pdf`;
-                const downloadButton = document.getElementById('download-pdf');
-                const originalText = downloadButton.textContent;
-                downloadButton.textContent = "جاري التحضير...";
+                const downloadButton = document.activeElement;
+                const originalText = downloadButton.innerHTML;
+                downloadButton.innerHTML = "جاري التحضير...";
                 downloadButton.disabled = true;
                 const opt = {
                     margin: 10,
@@ -344,15 +437,19 @@
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
                 html2pdf().from(cvElement).set(opt).save().then(() => {
-                    downloadButton.textContent = originalText;
+                    downloadButton.innerHTML = originalText;
                     downloadButton.disabled = false;
                 }).catch((err) => {
                     console.error("PDF generation error:", err);
-                    downloadButton.textContent = originalText;
+                    downloadButton.innerHTML = originalText;
                     downloadButton.disabled = false;
                     alert("فشل إنشاء الملف، يرجى مراجعة الـ Console.");
                 });
-            });
+            };
+
+            safeAddEventListener('download-pdf', 'click', downloadPdfHandler);
+            safeAddEventListener('download-pdf-bottom', 'click', downloadPdfHandler);
+            safeAddEventListener('send-hr-btn', 'click', sendToHR);
 
             safeAddEventListener('ai-summary-btn', 'click', suggestSummary);
             safeAddEventListener('add-experience', 'click', () => createDynamicItem('experience'));
@@ -441,7 +538,7 @@
             const payload = { language: lang, skills, experience };
             try {
                 const url = "https://shaimaa-hamdan.app.n8n.cloud/webhook/ai-summary";
-                const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload ) });
+                const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload  ) });
                 if (!res.ok) throw new Error("HTTP " + res.status);
                 const data = await res.json();
                 const summary = data?.summary ?? data?.json?.summary ?? data?.[0]?.summary ?? data?.[0]?.json?.summary ?? (lang === "ar" ? "لم يتم إرجاع ملخص." : "No summary returned.");
@@ -513,18 +610,6 @@
                 });
             }
 
-            if (type === 'experience' || type === 'education') {
-                const aiBtn = formItem.querySelector('.ai-writer-btn');
-                if (aiBtn) {
-                    aiBtn.addEventListener('click', () => {
-                        const descTextarea = formItem.querySelector('textarea[data-prop="desc"]');
-                        const suggestionKey = type === 'education' ? 'aiEduSuggestion' : 'aiDescSuggestion';
-                        descTextarea.value = translations[html.lang][suggestionKey];
-                        descTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-                    });
-                }
-            }
-
             formItem.querySelector('.remove-btn').addEventListener('click', () => {
                 formItem.remove();
                 previewItem.remove();
@@ -553,7 +638,7 @@
                 const langItem = previewItem.querySelector('.cv-language-item');
                 if (langItem) {
                     langItem.querySelector('.cv-lang-name').textContent = data.title;
-                    langItem.querySelector('.cv-lang-stars').textContent = '★'.repeat(data.stars) + '☆'.repeat(5 - data.stars);
+                    langItem.querySelector('.cv-lang-stars').textContent = '★'.repeat(data.stars || 0) + '☆'.repeat(5 - (data.stars || 0));
                 } else {
                     previewItem.textContent = data.title;
                 }
@@ -596,5 +681,5 @@
         init();
     });
 </script>
-</body></html>
 
+</body></html>
